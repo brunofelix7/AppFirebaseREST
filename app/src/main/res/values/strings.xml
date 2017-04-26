@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">AppFirebaseREST</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="text_login">Por favor, informe seu login</string>
+    <string name="hint_e_mail">Email</string>
+    <string name="text_senha">Senha</string>
+    <string name="text_entrar">ENTRAR</string>
+    <string name="text_cadastrar">CADASTRAR</string>
+    <string name="txt_salvar">Manter conectado</string>
+</resources>
