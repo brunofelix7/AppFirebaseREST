@@ -3,13 +3,11 @@ package com.example.appfirebaserest.database;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.example.appfirebaserest.core.Constants;
-
 import static android.content.Context.MODE_PRIVATE;
 
 public class SharedPreferencesFactory {
 
     private String token;
-    private Context context;
     private SharedPreferences pref;
     private SharedPreferences.Editor prefEditor;
 

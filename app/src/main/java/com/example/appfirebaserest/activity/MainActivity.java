@@ -14,6 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -26,10 +30,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
 
+    private ListView lv_list;
+    private ArrayAdapter<String> adapter;
+    private String[] list = new String[]{"Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        lv_list = (ListView) findViewById(R.id.lv_list);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
+        lv_list.setAdapter(adapter);
+        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -42,8 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -81,18 +99,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_solicitations) {
 
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_exit) {
+            signOut();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -101,20 +111,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void signOut() {
         new MaterialDialog.Builder(this)
-                .title("Deseja realmente sair?")
-                .content("Você será deslogado.")
-                .positiveText("Sim")
-                .negativeText("Não")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        preferencesFactory = new SharedPreferencesFactory();
-                        preferencesFactory.deletePreferences(MainActivity.this);
-                        Intent intent = new Intent(MainActivity.this, SignInActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                }).show();
+            .title("Deseja realmente sair?")
+            .content("Você será deslogado.")
+            .positiveText("Sim")
+            .negativeText("Não")
+            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                @Override
+                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    preferencesFactory = new SharedPreferencesFactory();
+                    preferencesFactory.deletePreferences(MainActivity.this);
+                    Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }).show();
 
     }
 }

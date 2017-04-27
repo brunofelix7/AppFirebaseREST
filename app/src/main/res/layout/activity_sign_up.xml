@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_login"
-    android:background="#ffffff"
+    android:background="@color/whiteColor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,8 +14,8 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:textColorHint="#000">
+        android:textColor="@color/blackColor"
+        android:textColorHint="@color/blackColor">
 
         <EditText
             android:id="@+id/et_email"
@@ -33,8 +33,8 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:textColorHint="#000" >
+        android:textColor="@color/blackColor"
+        android:textColorHint="@color/blackColor" >
 
         <EditText
             android:id="@+id/et_password"
@@ -46,16 +46,16 @@
             android:inputType="textPassword"
             android:padding="12dp"
             android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="#000"
-            android:textColorHint="#000" />
+            android:textColor="@color/blackColor"
+            android:textColorHint="@color/blackColor" />
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:textColorHint="#000" >
+        android:textColor="@color/blackColor"
+        android:textColorHint="@color/blackColor" >
 
         <EditText
             android:id="@+id/et_confirm_password"
@@ -67,14 +67,14 @@
             android:inputType="textPassword"
             android:padding="12dp"
             android:textAppearance="?android:textAppearanceMedium"
-            android:textColor="#000"
-            android:textColorHint="#000" />
+            android:textColor="@color/blackColor"
+            android:textColorHint="@color/blackColor" />
 
     </android.support.design.widget.TextInputLayout>
 
     <Button
         android:text="@string/text_cadastrar"
-        android:textColor="#ffffff"
+        android:textColor="@color/whiteColor"
         android:textSize="18sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

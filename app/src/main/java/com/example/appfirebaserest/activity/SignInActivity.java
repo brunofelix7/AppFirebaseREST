@@ -3,6 +3,7 @@ package com.example.appfirebaserest.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.model.Message;
+import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -65,6 +67,9 @@ public class SignInActivity extends AppCompatActivity {
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
 
+    //  Check Network Connection
+    private CheckNetworkConnection checkNetworkConnection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,18 +90,27 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    public void signIn(View view){
+    public void signIn(final View view){
         email = et_email.getText().toString();
         password = et_password.getText().toString();
         til_email.setErrorEnabled(false);
         til_password.setErrorEnabled(false);
 
-        if(email.isEmpty() || password.isEmpty()){
-            Toast.makeText(SignInActivity.this, "Preencha todos os campos.", Toast.LENGTH_SHORT).show();
-            til_email.setError("Por favor, digite seu email");
-            til_password.setError("Por favor, digite sua senha");
+        checkNetworkConnection = new CheckNetworkConnection(this);
+
+        if(!checkNetworkConnection.isConnected()){
+            Snackbar.make(view, "Sem internet", Snackbar.LENGTH_LONG).show();
             return;
-        }else{
+        }if(email.isEmpty() || password.isEmpty()){
+            if(email.isEmpty()){
+                til_email.setError("Por favor, digite seu email");
+            }if(password.isEmpty()){
+                til_password.setError("Por favor, digite sua senha");
+            }if(email.isEmpty() && password.isEmpty()){
+                Snackbar.make(view, "Preencha todos os campos", Snackbar.LENGTH_LONG).show();
+            }
+            return;
+        }if(!email.isEmpty() && !password.isEmpty()){
             materialDialog = new MaterialDialog.Builder(this)
                     .content("Aguarde...")
                     .cancelable(false)
@@ -107,12 +121,13 @@ public class SignInActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(!task.isSuccessful()){
-                        Toast.makeText(SignInActivity.this, "Email/Senha inválidos.", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(view, "Email/Senha inválidos", Snackbar.LENGTH_LONG).show();
                         materialDialog.dismiss();
                     }else{
                         materialDialog.dismiss();
                         if(cb_save_token.isChecked()){
                             getToken();
+                            getUID();
                         }
                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                         startActivity(intent);
@@ -188,7 +203,7 @@ public class SignInActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    Log.d(Constants.TAG, "UID:" + user.getUid() + user.getToken(false));
+                    Log.d(Constants.TAG, "UID:" + user.getUid() + "Email: " + user.getEmail() + "Nome: " + user.getDisplayName());
                 } else {
                     Log.d(Constants.TAG, "Nenhuma UID encontrada");
                 }

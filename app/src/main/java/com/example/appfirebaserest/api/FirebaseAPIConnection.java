@@ -6,8 +6,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FirebaseAPIConnection {
 
+    private static Retrofit retrofit;
+
     public static Retrofit getConnection(){
-        Retrofit retrofit = new Retrofit.Builder()
+        retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
