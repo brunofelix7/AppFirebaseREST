@@ -1,13 +1,20 @@
 package com.example.appfirebaserest.activity;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Toast;
-
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.api.FirebaseAPI;
+import com.example.appfirebaserest.core.Constants;
+import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.model.Message;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,9 +27,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,24 +35,95 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SignInActivity extends AppCompatActivity {
 
+    //  Firebase
     private FirebaseDatabase database;
     private FirebaseAuth mAuth;
     private DatabaseReference myRef;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private static final String TAG = "LogFirebase";
-    private static final String URL = "https://appfirebaserest.firebaseio.com/";
 
     //  Retrofit
     private FirebaseAPI firebaseAPI;
     private Retrofit retrofit;
+
+    //  Layouts
+    private EditText et_email;
+    private EditText et_password;
+    private CheckBox cb_save_token;
+    private ProgressDialog progressDialog;
+
+    //  Parâmetros
+    private String email;
+    private String password;
+    private String token;
+
+    //  SharedPreferences
+    private SharedPreferencesFactory preferencesFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        et_email = (EditText) findViewById(R.id.et_email);
+        et_password = (EditText) findViewById(R.id.et_password);
+        cb_save_token = (CheckBox) findViewById(R.id.cb_save_token);
+
+    }
+
+    public void signIn(View view){
+        email = et_email.getText().toString();
+        password = et_password.getText().toString();
+
+        //  VERIFICAR SE ESTÁ MARCADO O CHECKBOX
+        //  SE TRUE, SALVAR TOKEN NAS PREFERÊNCIAS
+        if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)){
+            Toast.makeText(SignInActivity.this, "Preencha todos os campos.", Toast.LENGTH_SHORT).show();
+        }if(cb_save_token.isChecked()){
+            getToken();
+            getUID();
+        }else{
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Aguarde...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            mAuth = FirebaseAuth.getInstance();
+            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if(!task.isSuccessful()){
+                        Toast.makeText(SignInActivity.this, "Email/Senha inválidos.", Toast.LENGTH_SHORT).show();
+                    }else{
+                        progressDialog.dismiss();
+                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            });
+        }
+    }
+
+    public void toSignUp(View view){
+        Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+        startActivity(intent);
+    }
+
+    private void session(){
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser() != null) {
+                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        };
+    }
+
+    private void sendRequest(){
         retrofit = new Retrofit.Builder()
-                .baseUrl(URL)
+                .baseUrl(Constants.URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -58,7 +133,7 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if(response.isSuccessful()){
-                    Log.d(TAG, "Body: " + response.body());
+                    Log.d(Constants.TAG, "Body: " + response.body());
                 }
             }
 
@@ -69,15 +144,15 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
-    private void auth(){
+    private void getUID(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid() + user.getToken(false));
+                    Log.d(Constants.TAG, "UID:" + user.getUid() + user.getToken(false));
                 } else {
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                    Log.d(Constants.TAG, "Nenhuma UID encontrada");
                 }
             }
         };
@@ -89,54 +164,19 @@ public class SignInActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
-                            String idToken = task.getResult().getToken();
-                            // Send token to your backend via HTTPS
-                            // ...
+                            token = task.getResult().getToken();
+                            preferencesFactory = new SharedPreferencesFactory();
+                            preferencesFactory.saveToken(SignInActivity.this, token);
+                            Log.d(Constants.TAG, "Token: " + token);
                         } else {
-                            // Handle error -> task.getException();
+                            Log.d(Constants.TAG, "Nenhum token encontrado");
                         }
                     }
                 });
     }
 
-    private void signUp(){
-        mAuth.createUserWithEmailAndPassword("email", "password")
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(SignInActivity.this, "Falha no login", Toast.LENGTH_SHORT).show();
-                        }
-                        // ...
-                    }
-                });
-    }
-
-    private void signIn(){
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.signInWithEmailAndPassword("email", "password")
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(SignInActivity.this, "Falha no login", Toast.LENGTH_SHORT).show();
-                        }
-                        // ...
-                    }
-                });
-    }
-
-    private void setData(){
+    /*private void setData(){
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("message");
         myRef.setValue("hello");
@@ -150,28 +190,16 @@ public class SignInActivity extends AppCompatActivity {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 String value = dataSnapshot.getValue(String.class);
-                Log.d(TAG, "Value is: " + value);
+                Log.d(Constants.TAG, "Value is: " + value);
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
+                Log.w(Constants.TAG, "Failed to read value.", error.toException());
             }
         });
-    }
-
-    /*@Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
     }*/
+
+
 }

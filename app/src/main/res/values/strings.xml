@@ -9,6 +9,7 @@
     <string name="text_login">Por favor, informe seu login</string>
     <string name="hint_e_mail">Email</string>
     <string name="text_senha">Senha</string>
+    <string name="text_confirmar_senha">Confirme sua senha</string>
     <string name="text_entrar">ENTRAR</string>
     <string name="text_cadastrar">CADASTRAR</string>
     <string name="txt_salvar">Manter conectado</string>
