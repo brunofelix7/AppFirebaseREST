@@ -1,6 +1,8 @@
 package com.example.appfirebaserest.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -13,10 +15,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
+import com.example.appfirebaserest.core.Constants;
+import com.example.appfirebaserest.database.SharedPreferencesFactory;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    //  SharedPreferences
+    private SharedPreferencesFactory preferencesFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            signOut();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -88,5 +97,24 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void signOut() {
+        new MaterialDialog.Builder(this)
+                .title("Deseja realmente sair?")
+                .content("Você será deslogado.")
+                .positiveText("Sim")
+                .negativeText("Não")
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        preferencesFactory = new SharedPreferencesFactory();
+                        preferencesFactory.deletePreferences(MainActivity.this);
+                        Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }).show();
+
     }
 }

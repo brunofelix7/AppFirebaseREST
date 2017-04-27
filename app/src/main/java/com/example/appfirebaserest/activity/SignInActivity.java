@@ -3,6 +3,7 @@ package com.example.appfirebaserest.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +12,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.core.Constants;
@@ -48,13 +51,16 @@ public class SignInActivity extends AppCompatActivity {
     //  Layouts
     private EditText et_email;
     private EditText et_password;
+    private TextInputLayout til_email;
+    private TextInputLayout til_password;
     private CheckBox cb_save_token;
-    private ProgressDialog progressDialog;
+    private MaterialDialog materialDialog;
 
     //  Parâmetros
     private String email;
     private String password;
     private String token;
+    private String getToken;
 
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
@@ -67,33 +73,47 @@ public class SignInActivity extends AppCompatActivity {
         et_email = (EditText) findViewById(R.id.et_email);
         et_password = (EditText) findViewById(R.id.et_password);
         cb_save_token = (CheckBox) findViewById(R.id.cb_save_token);
+        til_email = (TextInputLayout) findViewById(R.id.til_email);
+        til_password = (TextInputLayout) findViewById(R.id.til_password);
 
+        preferencesFactory = new SharedPreferencesFactory();
+        getToken = preferencesFactory.getToken(this);
+        if(getToken != null) {
+            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     public void signIn(View view){
         email = et_email.getText().toString();
         password = et_password.getText().toString();
+        til_email.setErrorEnabled(false);
+        til_password.setErrorEnabled(false);
 
-        //  VERIFICAR SE ESTÁ MARCADO O CHECKBOX
-        //  SE TRUE, SALVAR TOKEN NAS PREFERÊNCIAS
-        if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)){
+        if(email.isEmpty() || password.isEmpty()){
             Toast.makeText(SignInActivity.this, "Preencha todos os campos.", Toast.LENGTH_SHORT).show();
-        }if(cb_save_token.isChecked()){
-            getToken();
-            getUID();
+            til_email.setError("Por favor, digite seu email");
+            til_password.setError("Por favor, digite sua senha");
+            return;
         }else{
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Aguarde...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            materialDialog = new MaterialDialog.Builder(this)
+                    .content("Aguarde...")
+                    .cancelable(false)
+                    .progress(true, 0)
+                    .show();
             mAuth = FirebaseAuth.getInstance();
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(!task.isSuccessful()){
                         Toast.makeText(SignInActivity.this, "Email/Senha inválidos.", Toast.LENGTH_SHORT).show();
+                        materialDialog.dismiss();
                     }else{
-                        progressDialog.dismiss();
+                        materialDialog.dismiss();
+                        if(cb_save_token.isChecked()){
+                            getToken();
+                        }
                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                         startActivity(intent);
                         finish();
@@ -106,6 +126,24 @@ public class SignInActivity extends AppCompatActivity {
     public void toSignUp(View view){
         Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
         startActivity(intent);
+    }
+
+    private void getToken(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null){
+            user.getToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                public void onComplete(@NonNull Task<GetTokenResult> task) {
+                    if (task.isSuccessful()) {
+                        token = task.getResult().getToken();
+                        preferencesFactory = new SharedPreferencesFactory();
+                        preferencesFactory.saveToken(SignInActivity.this, token);
+                        Log.d(Constants.TAG, "Token: " + token);
+                    } else {
+                        Log.d(Constants.TAG, "Nenhum token encontrado");
+                    }
+                }
+            });
+        }
     }
 
     private void session(){
@@ -158,23 +196,12 @@ public class SignInActivity extends AppCompatActivity {
         };
     }
 
-    private void getToken(){
-        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
-        mUser.getToken(true)
-                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                    public void onComplete(@NonNull Task<GetTokenResult> task) {
-                        if (task.isSuccessful()) {
-                            token = task.getResult().getToken();
-                            preferencesFactory = new SharedPreferencesFactory();
-                            preferencesFactory.saveToken(SignInActivity.this, token);
-                            Log.d(Constants.TAG, "Token: " + token);
-                        } else {
-                            Log.d(Constants.TAG, "Nenhum token encontrado");
-                        }
-                    }
-                });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        til_email.setErrorEnabled(false);
+        til_password.setErrorEnabled(false);
     }
-
 
     /*private void setData(){
         database = FirebaseDatabase.getInstance();
