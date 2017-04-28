@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         list.add("test1");
         list.add("test2");
 
@@ -186,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String dateFormat = simpleDateFormat.format(date);
 
         Solicitation solicitation = new Solicitation(-37.44, -57.11666, "Atropelamento", "Pendente", dateFormat);
+        solicitation.save();
         mDatabase = FirebaseDatabase.getInstance();
         myRef = mDatabase.getReference();
         String id = myRef.push().getKey();

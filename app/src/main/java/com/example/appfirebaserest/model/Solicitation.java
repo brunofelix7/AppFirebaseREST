@@ -1,10 +1,12 @@
 package com.example.appfirebaserest.model;
 
+import com.orm.SugarRecord;
+
 import java.util.List;
 
-public class Solicitation {
+public class Solicitation extends SugarRecord<Solicitation>{
 
-    //private List<Double> location;
+    private String firebaseId;
     private Double latitude;
     private Double longitude;
     private String urgency;
@@ -33,6 +35,14 @@ public class Solicitation {
                 ", status='" + status + '\'' +
                 ", date=" + date +
                 '}';
+    }
+
+    public String getFirebaseId() {
+        return firebaseId;
+    }
+
+    public void setFirebaseId(String firebaseId) {
+        this.firebaseId = firebaseId;
     }
 
     public Double getLatitude() {
