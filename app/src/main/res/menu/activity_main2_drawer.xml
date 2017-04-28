@@ -4,7 +4,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_solicitations"
-            android:icon="@drawable/ic_menu_list"
+            android:icon="@drawable/ic_menu_profile"
             android:title="Minha conta" />
     </group>
 

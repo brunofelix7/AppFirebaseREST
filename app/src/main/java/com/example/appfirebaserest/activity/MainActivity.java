@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,20 +26,31 @@ import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
 
+    //  Layouts
     private ListView lv_list;
+    private SwipeRefreshLayout srl_refresh;
+
+    //  Arrays
     private ArrayAdapter<String> adapter;
-    private String[] list = new String[]{"Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1", "Test1"};
+    private List<String> list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        list.add("test1");
+        list.add("test2");
+
+        //  ListView
         lv_list = (ListView) findViewById(R.id.lv_list);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
         lv_list.setAdapter(adapter);
@@ -46,6 +58,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //  SwipeRefreshLayout
+        srl_refresh = (SwipeRefreshLayout) findViewById(R.id.srl_refresh);
+        srl_refresh.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        srl_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
             }
         });
 
@@ -67,6 +89,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void refresh(){
+        list.add("test3");
+        lv_list.invalidateViews();
+        srl_refresh.setRefreshing(false);
     }
 
     @Override
@@ -100,7 +128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_solicitations) {
-
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_exit) {
             signOut();
         }

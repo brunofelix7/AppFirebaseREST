@@ -15,15 +15,14 @@
         android:id="@+id/til_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:errorEnabled="true"
         android:textColor="@color/blackColor"
-        android:textColorHint="@color/blackColor">
+        android:textColorHint="@color/blackColor"
+        app:errorEnabled="true">
 
-        <android.support.design.widget.TextInputEditText
+        <EditText
             android:id="@+id/et_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:drawablePadding="16dp"
             android:drawableRight="@drawable/ic_action_email"
             android:hint="@string/hint_e_mail"
@@ -37,11 +36,11 @@
         android:id="@+id/til_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:errorEnabled="true"
         android:textColor="@color/blackColor"
-        android:textColorHint="@color/blackColor" >
+        android:textColorHint="@color/blackColor"
+        app:errorEnabled="true">
 
-        <android.support.design.widget.TextInputEditText
+        <EditText
             android:id="@+id/et_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
