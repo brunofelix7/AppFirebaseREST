@@ -1,25 +1,23 @@
 package com.example.appfirebaserest.activity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.api.FirebaseAPI;
+import com.example.appfirebaserest.api.FirebaseAPIConnection;
 import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
-import com.example.appfirebaserest.model.Message;
+import com.example.appfirebaserest.model.Solicitation;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,16 +25,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -48,7 +42,6 @@ public class SignInActivity extends AppCompatActivity {
 
     //  Retrofit
     private FirebaseAPI firebaseAPI;
-    private Retrofit retrofit;
 
     //  Layouts
     private EditText et_email;
@@ -174,28 +167,7 @@ public class SignInActivity extends AppCompatActivity {
         };
     }
 
-    private void sendRequest(){
-        retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
-        firebaseAPI = retrofit.create(FirebaseAPI.class);
-        Call<Message> request = firebaseAPI.getMessages();
-        request.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if(response.isSuccessful()){
-                    Log.d(Constants.TAG, "Body: " + response.body());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-
-            }
-        });
-    }
 
     private void getUID(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -218,30 +190,7 @@ public class SignInActivity extends AppCompatActivity {
         til_password.setErrorEnabled(false);
     }
 
-    /*private void setData(){
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("message");
-        myRef.setValue("hello");
-    }
 
-    private void getData(){
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d(Constants.TAG, "Value is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(Constants.TAG, "Failed to read value.", error.toException());
-            }
-        });
-    }*/
 
 
 }
