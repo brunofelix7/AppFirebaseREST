@@ -29,8 +29,11 @@ import com.example.appfirebaserest.api.FirebaseAPIConnection;
 import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.model.Solicitation;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,7 +50,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //  Firebase
     private FirebaseDatabase mDatabase;
+    private FirebaseAuth mAuth;
     private DatabaseReference myRef;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     //  Retrofit
     private FirebaseAPI firebaseAPI;
@@ -68,7 +73,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser() != null) {
+                    Log.d(Constants.TAG, "User exist");
+                }else{
+                    Log.d(Constants.TAG, "User null");
+                }
+            }
+        };
 
         list.add("test1");
         list.add("test2");
@@ -112,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -164,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             .onPositive(new MaterialDialog.SingleButtonCallback() {
                 @Override
                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                    mAuth.signOut();
                     preferencesFactory = new SharedPreferencesFactory();
                     preferencesFactory.deletePreferences(MainActivity.this);
                     Intent intent = new Intent(MainActivity.this, SignInActivity.class);
@@ -187,12 +204,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
         String dateFormat = simpleDateFormat.format(date);
 
-        Solicitation solicitation = new Solicitation(-37.44, -57.11666, "Atropelamento", "Pendente", dateFormat);
-        solicitation.save();
         mDatabase = FirebaseDatabase.getInstance();
         myRef = mDatabase.getReference();
         String id = myRef.push().getKey();
+        Solicitation solicitation = new Solicitation();
+        solicitation.setFirebaseId(id);
+        solicitation.setLatitude(-37.44);
+        solicitation.setLongitude(-57.11666);
+        solicitation.setUrgency("Atropelamento");
+        solicitation.setStatus("Pendente");
+        solicitation.setDate(dateFormat);
         myRef.child("ocorrencias").child(id).setValue(solicitation);
+
+        //  solicitation.save();
     }
 
     private void sendRequest(){
@@ -228,6 +252,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
 }

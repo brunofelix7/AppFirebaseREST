@@ -10,14 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.api.FirebaseAPI;
-import com.example.appfirebaserest.api.FirebaseAPIConnection;
 import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
-import com.example.appfirebaserest.model.Solicitation;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,9 +25,6 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -74,6 +68,18 @@ public class SignInActivity extends AppCompatActivity {
         til_email = (TextInputLayout) findViewById(R.id.til_email);
         til_password = (TextInputLayout) findViewById(R.id.til_password);
 
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser() != null) {
+                    Log.d(Constants.TAG, "User exist");
+                }else{
+                    Log.d(Constants.TAG, "User null");
+                }
+            }
+        };
+
         preferencesFactory = new SharedPreferencesFactory();
         getToken = preferencesFactory.getToken(this);
         if(getToken != null) {
@@ -81,6 +87,7 @@ public class SignInActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+
     }
 
     public void signIn(final View view){
@@ -154,21 +161,6 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-    private void session(){
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null) {
-                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        };
-    }
-
-
-
     private void getUID(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -190,7 +182,17 @@ public class SignInActivity extends AppCompatActivity {
         til_password.setErrorEnabled(false);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
 
-
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
 }

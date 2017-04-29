@@ -1,10 +1,9 @@
 package com.example.appfirebaserest.model;
 
-import com.orm.SugarRecord;
+import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.util.List;
-
-public class Solicitation extends SugarRecord<Solicitation>{
+@IgnoreExtraProperties
+public class Solicitation {
 
     private String firebaseId;
     private Double latitude;
@@ -17,8 +16,9 @@ public class Solicitation extends SugarRecord<Solicitation>{
 
     }
 
-    public Solicitation(Double latitude, Double longitude, String urgency, String status, String date) {
+    public Solicitation(String firebaseId, Double latitude, Double longitude, String urgency, String status, String date) {
         super();
+        this.firebaseId = firebaseId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.urgency = urgency;
@@ -29,11 +29,12 @@ public class Solicitation extends SugarRecord<Solicitation>{
     @Override
     public String toString() {
         return "Solicitation{" +
-                "latitude=" + latitude +
+                "firebaseId='" + firebaseId + '\'' +
+                ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", urgency='" + urgency + '\'' +
                 ", status='" + status + '\'' +
-                ", date=" + date +
+                ", date='" + date + '\'' +
                 '}';
     }
 
@@ -84,5 +85,4 @@ public class Solicitation extends SugarRecord<Solicitation>{
     public void setDate(String date) {
         this.date = date;
     }
-
 }
