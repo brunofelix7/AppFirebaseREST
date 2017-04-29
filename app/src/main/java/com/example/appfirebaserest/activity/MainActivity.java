@@ -28,12 +28,11 @@ import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.api.FirebaseAPIConnection;
 import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
+import com.example.appfirebaserest.dao.SolicitationDAO;
 import com.example.appfirebaserest.model.Solicitation;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -192,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void refresh(){
+        //  VERIFICAR SE TEM CONEXÃO
         saveData();
         sendRequest();
         list.add("test3");
@@ -206,17 +206,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         mDatabase = FirebaseDatabase.getInstance();
         myRef = mDatabase.getReference();
-        String id = myRef.push().getKey();
-        Solicitation solicitation = new Solicitation();
-        solicitation.setFirebaseId(id);
-        solicitation.setLatitude(-37.44);
-        solicitation.setLongitude(-57.11666);
-        solicitation.setUrgency("Atropelamento");
-        solicitation.setStatus("Pendente");
-        solicitation.setDate(dateFormat);
-        myRef.child("ocorrencias").child(id).setValue(solicitation);
 
-        //  solicitation.save();
+        String id = myRef.push().getKey();
+        Solicitation solicitation = new Solicitation(id, -37.44, -57.11666, "Atropelamento", "Pendente", dateFormat);
+        SolicitationDAO solicitationDAO = new SolicitationDAO(solicitation.getFirebaseId(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getUrgency(), solicitation.getStatus(), solicitation.getDate());
+        solicitationDAO.save();
+
+        myRef.child("ocorrencias").child(id).setValue(solicitation);
     }
 
     private void sendRequest(){

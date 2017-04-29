@@ -1,10 +1,10 @@
-package com.example.appfirebaserest.model;
+package com.example.appfirebaserest.dao;
 
-import com.google.firebase.database.IgnoreExtraProperties;
-import java.io.Serializable;
+import com.example.appfirebaserest.model.Solicitation;
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
-@IgnoreExtraProperties
-public class Solicitation implements Serializable{
+public class SolicitationDAO extends SugarRecord<Solicitation>{
 
     private String firebaseId;
     private Double latitude;
@@ -13,30 +13,20 @@ public class Solicitation implements Serializable{
     private String status;
     private String date;
 
-    public Solicitation(){
+    @Ignore
+    private Solicitation solicitation;
+
+    public SolicitationDAO(){
 
     }
 
-    public Solicitation(String firebaseId, Double latitude, Double longitude, String urgency, String status, String date) {
-        super();
+    public SolicitationDAO(String firebaseId, Double latitude, Double longitude, String urgency, String status, String date) {
         this.firebaseId = firebaseId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.urgency = urgency;
         this.status = status;
         this.date = date;
-    }
-
-    @Override
-    public String toString() {
-        return "Solicitation{" +
-                "firebaseId='" + firebaseId + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", urgency='" + urgency + '\'' +
-                ", status='" + status + '\'' +
-                ", date='" + date + '\'' +
-                '}';
     }
 
     public String getFirebaseId() {
@@ -87,5 +77,11 @@ public class Solicitation implements Serializable{
         this.date = date;
     }
 
+    public Solicitation getSolicitation() {
+        return solicitation;
+    }
 
+    public void setSolicitation(Solicitation solicitation) {
+        this.solicitation = solicitation;
+    }
 }

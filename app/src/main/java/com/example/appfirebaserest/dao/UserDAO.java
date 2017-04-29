@@ -1,20 +1,22 @@
-package com.example.appfirebaserest.model;
+package com.example.appfirebaserest.dao;
 
-import com.google.firebase.database.IgnoreExtraProperties;
+import com.example.appfirebaserest.model.User;
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 
-import java.io.Serializable;
-
-@IgnoreExtraProperties
-public class User implements Serializable {
+public class UserDAO extends SugarRecord<User>{
 
     private String uid;
     private String email;
 
-    public User(){
+    @Ignore
+    private User user;
+
+    public UserDAO(){
 
     }
 
-    public User(String email, String uid) {
+    public UserDAO(String email, String uid) {
         this.email = email;
         this.uid = uid;
     }
@@ -34,7 +36,5 @@ public class User implements Serializable {
     public void setUid(String uid) {
         this.uid = uid;
     }
+
 }
-
-
-
