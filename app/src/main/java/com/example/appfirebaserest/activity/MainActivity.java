@@ -1,6 +1,7 @@
 package com.example.appfirebaserest.activity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -32,6 +33,7 @@ import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.model.Solicitation;
+import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -50,12 +52,6 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String KEY_URGENCY = "urgency";
-    public static final String KEY_CONSCIENCIA = "nivel_consciencia";
-    public static final String KEY_RESPIRACAO = "nivel_respiracao";
-    public static final String KEY_STATUS = "status";
-    public static final String KEY_DATE = "date";
-
     //  Firebase
     private FirebaseDatabase mDatabase;
     private FirebaseAuth mAuth;
@@ -67,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
+
+    //  Check Network Connection
+    private CheckNetworkConnection checkNetworkConnection;
 
     //  SQLite
     private SQLiteFactory sqLiteFactory;
@@ -80,7 +79,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MyAdapter myAdapter;
     private ArrayList<HashMap<String, String>> mList;
     private ArrayList<HashMap<String, Solicitation>> mListBody;
-    private HashMap<String, String> map;
+    private HashMap<String, Solicitation> map;
+
+    //  Get From SQLite
+    private Solicitation solicitation;
+    private HashMap<String, Solicitation> hashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,77 +102,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
 
-        /*//  Enquanto carrega minha lista
-        materialDialog = new MaterialDialog.Builder(MainActivity.this)
-                .title("Por favor, aguarde")
-                .content("Carregando...")
-                .cancelable(false)
-                .progress(true, 0)
-                .progressIndeterminateStyle(true)
-                .show();*/
-
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                firebaseAPI = FirebaseAPIConnection.getConnection().create(FirebaseAPI.class);
-                Call<HashMap<String, Solicitation>> request = firebaseAPI.getSolicitations();
-                try {
-                    HashMap<String, Solicitation> requestBody = request.execute().body();
-                    if(requestBody != null) {
-                        Log.d(Constants.TAG, "Body: " + requestBody);
-                        for (Map.Entry<String, Solicitation> entry : requestBody.entrySet()) {
-                            String key = entry.getKey();
-                            Solicitation solicitation = entry.getValue();
-                            mListBody = new ArrayList<>();
-                            mListBody.add(requestBody);
-
-                            Log.d(Constants.TAG, "Keys: " + key + "\n");
-                            Log.d(Constants.TAG, "Values: " + solicitation + "\n");
-                        }
-                    }
-                } catch (IOException e) {
-                    Log.d(Constants.TAG, "IOException " + e.getMessage());
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        myAdapter = new MyAdapter(MainActivity.this, mListBody);
-                        lv_list = (ListView) findViewById(R.id.lv_list);
-                        lv_list.setAdapter(myAdapter);
-                        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        //materialDialog.dismiss();
-                    }
-                });
-            }
-        }.start();
-
-
-        /*//  ListView
-        mList = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            map = new HashMap<>();
-            map.put(KEY_URGENCY, "Urgência");
-            map.put(KEY_CONSCIENCIA, "Nível de Consciência");
-            map.put(KEY_RESPIRACAO, "Nível de Respiração");
-            map.put(KEY_STATUS, "Pendente");
-            map.put(KEY_DATE, "30/04/2017 - 00:30:00");
-            mList.add(map);
-        }
-        myAdapter = new MyAdapter(this, mList);
+        //  ListView
         lv_list = (ListView) findViewById(R.id.lv_list);
-        lv_list.setAdapter(myAdapter);
-        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
-            }
-        });*/
 
         //  SwipeRefreshLayout
         srl_refresh = (SwipeRefreshLayout) findViewById(R.id.srl_refresh);
@@ -266,27 +200,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void refresh(){
         //  VERIFICAR SE TEM CONEXÃO
-        sendSolicitation();
-        getFromFirebase();
+        getSolicitations();
         lv_list.invalidateViews();
         srl_refresh.setRefreshing(false);
     }
 
-    private void sendSolicitation(){
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
-        String dateFormat = simpleDateFormat.format(date);
+    private void listFromFirebase(){
+        materialDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Por favor, aguarde")
+                .content("Carregando...")
+                .cancelable(false)
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .show();
 
-        mDatabase = FirebaseDatabase.getInstance();
-        myRef = mDatabase.getReference();
-
-        String id = myRef.push().getKey();
-        Solicitation solicitation = new Solicitation(-7.1858017, -34.8901212, "Atropelamento", "Consciênte", "Fraca", "Pendente", dateFormat);
-
-        myRef.child("ocorrencias").child(id).setValue(solicitation);
-    }
-
-    private void getFromFirebase(){
         //  Cria a base de dados
         sqLiteFactory = new SQLiteFactory(MainActivity.this);
 
@@ -295,36 +222,121 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //  Cria a tabela novamente
         sqLiteFactory.createTable();
-        firebaseAPI = FirebaseAPIConnection.getConnection().create(FirebaseAPI.class);
-        Call<HashMap<String, Solicitation>> request = firebaseAPI.getSolicitations();
-        request.enqueue(new Callback<HashMap<String, Solicitation>>() {
 
+        new Thread(){
             @Override
-            public void onResponse(Call<HashMap<String, Solicitation>> call, Response<HashMap<String, Solicitation>> response) {
-                if(response.isSuccessful()){
-                    if(response.body() != null){
-
-                        HashMap<String, Solicitation> hashMap;
-                        hashMap = response.body();
-                        Log.d(Constants.TAG, "Body: " + hashMap);
-                        for ( Map.Entry<String, Solicitation> entry : hashMap.entrySet()) {
-                            String key = entry.getKey();
-                            Solicitation solicitation = entry.getValue();
-
-                            //  Salva os dados atualizados no SQLite
-                            sqLiteFactory.save(key, solicitation.getStatus(), solicitation.getUrgency(), solicitation.getNivel_consciencia(), solicitation.getNivel_respiracao(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getDate());
-                            Log.d(Constants.TAG, "Keys: " + key + "\n");
-                            Log.d(Constants.TAG, "Values: " + solicitation + "\n");
-                        }
-                    }
+            public void run() {
+                super.run();
+                firebaseAPI = FirebaseAPIConnection.getConnection().create(FirebaseAPI.class);
+                Call<HashMap<String, Solicitation>> request = firebaseAPI.getSolicitations();
+                try {
+                    map = request.execute().body();
+                } catch (IOException e) {
+                    Log.d(Constants.TAG, "IOException " + e.getMessage());
                 }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(map != null) {
+                            Log.d(Constants.TAG, "Body: " + map);
+                            for (Map.Entry<String, Solicitation> entry : map.entrySet()) {
+                                String key = entry.getKey();
+                                Solicitation solicitation = entry.getValue();
+
+                                sqLiteFactory.save(key, solicitation.getStatus(), solicitation.getUrgency(), solicitation.getNivel_consciencia(), solicitation.getNivel_respiracao(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getDate());
+                                Log.d(Constants.TAG, "Keys: " + key + "\n");
+                                Log.d(Constants.TAG, "Values: " + solicitation + "\n");
+                            }
+                            myAdapter = new MyAdapter(MainActivity.this, map);
+                            lv_list.setAdapter(myAdapter);
+                        }
+                        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        materialDialog.dismiss();
+                    }
+                });
             }
+        }.start();
 
+        /*//  ListView
+        mList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            map = new HashMap<>();
+            map.put(KEY_URGENCY, "Urgência");
+            map.put(KEY_CONSCIENCIA, "Nível de Consciência");
+            map.put(KEY_RESPIRACAO, "Nível de Respiração");
+            map.put(KEY_STATUS, "Pendente");
+            map.put(KEY_DATE, "30/04/2017 - 00:30:00");
+            mList.add(map);
+        }
+        myAdapter = new MyAdapter(this, mList);
+        lv_list = (ListView) findViewById(R.id.lv_list);
+        lv_list.setAdapter(myAdapter);
+        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onFailure(Call<HashMap<String, Solicitation>> call, Throwable t) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+            }
+        });*/
+    }
 
+    private void listFromSQLite(){
+        materialDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Por favor, aguarde")
+                .content("Carregando...")
+                .cancelable(false)
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .show();
+
+        sqLiteFactory = new SQLiteFactory(this);
+        Cursor result = sqLiteFactory.findAll();
+
+        hashMap = new HashMap<>();
+
+        if (result.moveToFirst()) {
+            while (!result.isAfterLast()) {
+                solicitation = new Solicitation();
+                solicitation.setFirebaseId(result.getString(1));
+                solicitation.setStatus(result.getString(2));
+                solicitation.setUrgency(result.getString(3));
+                solicitation.setNivel_consciencia(result.getString(4));
+                solicitation.setNivel_respiracao(result.getString(5));
+                solicitation.setDate(result.getString(8));
+                hashMap.put(result.getString(1), solicitation);
+                result.moveToNext();
+            }
+            myAdapter = new MyAdapter(MainActivity.this, hashMap);
+            lv_list.setAdapter(myAdapter);
+        }
+        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
             }
         });
+        materialDialog.dismiss();
+    }
+
+    private void getSolicitations(){
+        checkNetworkConnection = new CheckNetworkConnection(this);
+        if(!checkNetworkConnection.isConnected()){
+            listFromSQLite();
+            Log.d(Constants.TAG, "Sem internet");
+        }else{
+            listFromFirebase();
+            Log.d(Constants.TAG, "Conectado");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSolicitations();
     }
 
     @Override

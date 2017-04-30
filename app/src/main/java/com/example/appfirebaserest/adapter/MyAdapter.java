@@ -6,27 +6,28 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.example.appfirebaserest.R;
-import com.example.appfirebaserest.activity.MainActivity;
+import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.model.Solicitation;
 
 public class MyAdapter extends BaseAdapter {
 
     //  Arrays
-    private HashMap<String, Solicitation> mViews;
-    private ArrayList<HashMap<String, Solicitation>> data;
+    private Solicitation mViews;
+    private HashMap<String, Solicitation> data;
 
     //  Layouts
     private Activity activity;
     private TextView tv_urgency, tv_nivel_consciencia, tv_nivel_respiracao, tv_status, tv_date;
     private static LayoutInflater inflater = null;
 
-    public MyAdapter(Activity a, ArrayList<HashMap<String, Solicitation>> d) {
+    public MyAdapter(Activity a, HashMap<String, Solicitation> d) {
         activity = a;
         data = d;
         inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -57,15 +58,16 @@ public class MyAdapter extends BaseAdapter {
         tv_status = (TextView) view.findViewById(R.id.tv_status);
         tv_date = (TextView) view.findViewById(R.id.tv_date);
 
-        mViews = new HashMap<>();
+        mViews = new Solicitation();
         mViews = data.get(position);
 
-        for(Solicitation s : mViews.values()){
-            tv_urgency.setText(s.getUrgency());
-            tv_nivel_consciencia.setText(s.getNivel_consciencia());
-            tv_nivel_respiracao.setText(s.getNivel_respiracao());
-            tv_status.setText(s.getStatus());
-            tv_date.setText(s.getDate());
+        for (Map.Entry<String, Solicitation> entry : data.entrySet()) {
+            mViews = entry.getValue();
+            tv_urgency.setText(mViews.getUrgency());
+            tv_nivel_consciencia.setText(mViews.getNivel_consciencia());
+            tv_nivel_respiracao.setText(mViews.getNivel_respiracao());
+            tv_status.setText(mViews.getStatus());
+            tv_date.setText(mViews.getDate());
         }
 
         return view;

@@ -29,9 +29,8 @@ import com.google.firebase.database.FirebaseDatabase;
 public class SignInActivity extends AppCompatActivity {
 
     //  Firebase
-    private FirebaseDatabase database;
+    private FirebaseUser user;
     private FirebaseAuth mAuth;
-    private DatabaseReference myRef;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     //  Retrofit
@@ -80,6 +79,7 @@ public class SignInActivity extends AppCompatActivity {
             }
         };
 
+        //  Verifica se existe um Token, se sim, libera para a tela principal
         preferencesFactory = new SharedPreferencesFactory();
         getToken = preferencesFactory.getToken(this);
         if(getToken != null) {
@@ -127,7 +127,6 @@ public class SignInActivity extends AppCompatActivity {
                         materialDialog.dismiss();
                         if(cb_save_token.isChecked()){
                             getToken();
-                            getUID();
                         }
                         Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                         startActivity(intent);
@@ -144,7 +143,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void getToken(){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null){
             user.getToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                 public void onComplete(@NonNull Task<GetTokenResult> task) {
