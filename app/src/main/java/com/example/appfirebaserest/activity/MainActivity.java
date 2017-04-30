@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -24,16 +25,18 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
+import com.example.appfirebaserest.adapter.MyAdapter;
 import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.api.FirebaseAPIConnection;
 import com.example.appfirebaserest.core.Constants;
+import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
-import com.example.appfirebaserest.dao.SolicitationDAO;
 import com.example.appfirebaserest.model.Solicitation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +50,12 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final String KEY_URGENCY = "urgency";
+    public static final String KEY_CONSCIENCIA = "nivel_consciencia";
+    public static final String KEY_RESPIRACAO = "nivel_respiracao";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_DATE = "date";
+
     //  Firebase
     private FirebaseDatabase mDatabase;
     private FirebaseAuth mAuth;
@@ -59,13 +68,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
 
+    //  SQLite
+    private SQLiteFactory sqLiteFactory;
+
     //  Layouts
     private ListView lv_list;
+    private MaterialDialog materialDialog;
     private SwipeRefreshLayout srl_refresh;
 
     //  Arrays
-    private ArrayAdapter<String> adapter;
-    private List<String> list = new ArrayList<>();
+    private MyAdapter myAdapter;
+    private ArrayList<HashMap<String, String>> mList;
+    private ArrayList<HashMap<String, Solicitation>> mListBody;
+    private HashMap<String, String> map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,19 +99,77 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
 
-        list.add("test1");
-        list.add("test2");
+        /*//  Enquanto carrega minha lista
+        materialDialog = new MaterialDialog.Builder(MainActivity.this)
+                .title("Por favor, aguarde")
+                .content("Carregando...")
+                .cancelable(false)
+                .progress(true, 0)
+                .progressIndeterminateStyle(true)
+                .show();*/
 
-        //  ListView
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                firebaseAPI = FirebaseAPIConnection.getConnection().create(FirebaseAPI.class);
+                Call<HashMap<String, Solicitation>> request = firebaseAPI.getSolicitations();
+                try {
+                    HashMap<String, Solicitation> requestBody = request.execute().body();
+                    if(requestBody != null) {
+                        Log.d(Constants.TAG, "Body: " + requestBody);
+                        for (Map.Entry<String, Solicitation> entry : requestBody.entrySet()) {
+                            String key = entry.getKey();
+                            Solicitation solicitation = entry.getValue();
+                            mListBody = new ArrayList<>();
+                            mListBody.add(requestBody);
+
+                            Log.d(Constants.TAG, "Keys: " + key + "\n");
+                            Log.d(Constants.TAG, "Values: " + solicitation + "\n");
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.d(Constants.TAG, "IOException " + e.getMessage());
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        myAdapter = new MyAdapter(MainActivity.this, mListBody);
+                        lv_list = (ListView) findViewById(R.id.lv_list);
+                        lv_list.setAdapter(myAdapter);
+                        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        //materialDialog.dismiss();
+                    }
+                });
+            }
+        }.start();
+
+
+        /*//  ListView
+        mList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            map = new HashMap<>();
+            map.put(KEY_URGENCY, "Urgência");
+            map.put(KEY_CONSCIENCIA, "Nível de Consciência");
+            map.put(KEY_RESPIRACAO, "Nível de Respiração");
+            map.put(KEY_STATUS, "Pendente");
+            map.put(KEY_DATE, "30/04/2017 - 00:30:00");
+            mList.add(map);
+        }
+        myAdapter = new MyAdapter(this, mList);
         lv_list = (ListView) findViewById(R.id.lv_list);
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, list);
-        lv_list.setAdapter(adapter);
+        lv_list.setAdapter(myAdapter);
         lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
         //  SwipeRefreshLayout
         srl_refresh = (SwipeRefreshLayout) findViewById(R.id.srl_refresh);
@@ -115,7 +188,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, SolicitationActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -192,14 +266,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void refresh(){
         //  VERIFICAR SE TEM CONEXÃO
-        saveData();
-        sendRequest();
-        list.add("test3");
+        sendSolicitation();
+        getFromFirebase();
         lv_list.invalidateViews();
         srl_refresh.setRefreshing(false);
     }
 
-    private void saveData(){
+    private void sendSolicitation(){
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm:ss");
         String dateFormat = simpleDateFormat.format(date);
@@ -208,14 +281,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         myRef = mDatabase.getReference();
 
         String id = myRef.push().getKey();
-        Solicitation solicitation = new Solicitation(id, -37.44, -57.11666, "Atropelamento", "Pendente", dateFormat);
-        SolicitationDAO solicitationDAO = new SolicitationDAO(solicitation.getFirebaseId(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getUrgency(), solicitation.getStatus(), solicitation.getDate());
-        solicitationDAO.save();
+        Solicitation solicitation = new Solicitation(-7.1858017, -34.8901212, "Atropelamento", "Consciênte", "Fraca", "Pendente", dateFormat);
 
         myRef.child("ocorrencias").child(id).setValue(solicitation);
     }
 
-    private void sendRequest(){
+    private void getFromFirebase(){
+        //  Cria a base de dados
+        sqLiteFactory = new SQLiteFactory(MainActivity.this);
+
+        //  Exclui a tabela se ela já existir
+        sqLiteFactory.dropTable();
+
+        //  Cria a tabela novamente
+        sqLiteFactory.createTable();
         firebaseAPI = FirebaseAPIConnection.getConnection().create(FirebaseAPI.class);
         Call<HashMap<String, Solicitation>> request = firebaseAPI.getSolicitations();
         request.enqueue(new Callback<HashMap<String, Solicitation>>() {
@@ -224,18 +303,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onResponse(Call<HashMap<String, Solicitation>> call, Response<HashMap<String, Solicitation>> response) {
                 if(response.isSuccessful()){
                     if(response.body() != null){
+
                         HashMap<String, Solicitation> hashMap;
                         hashMap = response.body();
                         Log.d(Constants.TAG, "Body: " + hashMap);
-                        /*for (String keys: hashMap.keySet()){
-                            Log.d(Constants.TAG, "Keys: " + keys + "\n");
-                        }
-                        for (Solicitation solicitations : hashMap.values()){
-                            Log.d(Constants.TAG, "Values: " + solicitations + "\n");
-                        }*/
                         for ( Map.Entry<String, Solicitation> entry : hashMap.entrySet()) {
                             String key = entry.getKey();
                             Solicitation solicitation = entry.getValue();
+
+                            //  Salva os dados atualizados no SQLite
+                            sqLiteFactory.save(key, solicitation.getStatus(), solicitation.getUrgency(), solicitation.getNivel_consciencia(), solicitation.getNivel_respiracao(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getDate());
                             Log.d(Constants.TAG, "Keys: " + key + "\n");
                             Log.d(Constants.TAG, "Values: " + solicitation + "\n");
                         }

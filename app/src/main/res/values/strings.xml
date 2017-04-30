@@ -1,16 +1,45 @@
 <resources>
-    <string name="app_name">FirebaseApp</string>
-    <string name="title_activity_main">MainActivity</string>
 
+    <!-- Nome do App -->
+    <string name="app_name">FirebaseApp</string>
+
+    <!-- NavigationDrawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <!-- MainActivity -->
+    <string name="title_activity_main">MainActivity</string>
     <string name="action_logout">Logout</string>
+
+    <!-- SignInActivity / SignUpActivity -->
     <string name="text_login">Por favor, informe seu login</string>
-    <string name="hint_e_mail">Email</string>
+    <string name="text_email">Email</string>
     <string name="text_senha">Senha</string>
     <string name="text_confirmar_senha">Confirme sua senha</string>
     <string name="text_entrar">ENTRAR</string>
     <string name="text_cadastrar">CADASTRAR</string>
-    <string name="txt_salvar">Manter conectado</string>
+    <string name="text_salvar">Manter conectado</string>
+
+    <!-- SolicitationActivity -->
+    <string name="text_information">Para atendê-lo da melhor maneira possível, precisamos saber de alguns que são cruciais para exelência do atendimento á vítima.</string>
+    <string name="text_urgency">Qual a sua urgência?</string>
+    <string name="text_nivel_consciencia">Nível de consciência da vitima</string>
+    <string name="text_nivel_respiracao">Nível de respiração da vítima</string>
+    <string name="text_enviar">ENVIAR</string>
+
+    <!-- Spinner Array -->
+    <string-array name="niveis_consciencia">
+        <item>--Selecione--</item>
+        <item>Imóvel</item>
+        <item>Inconsciente</item>
+        <item>Consciente</item>
+    </string-array>
+
+    <!-- Spinner Array -->
+    <string-array name="niveis_respiracao">
+        <item>--Selecione--</item>
+        <item>Fraca</item>
+        <item>Normal</item>
+        <item>Não respira</item>
+    </string-array>
 </resources>

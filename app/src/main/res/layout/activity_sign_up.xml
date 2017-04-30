@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:drawablePadding="16dp"
             android:drawableRight="@drawable/ic_action_email"
-            android:hint="@string/hint_e_mail"
+            android:hint="@string/text_email"
             android:inputType="textEmailAddress"
             android:padding="12dp"
             android:textAppearance="?android:textAppearanceMedium" />

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+    <LinearLayout
+        android:id="@+id/thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dip">
+
+        <ImageView
+            android:id="@+id/list_image"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:background="@null"
+            android:src="@drawable/ambulance"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_urgency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/thumbnail"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:text="Urgência"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="15dip"
+        android:textStyle="bold"/>
+
+    <TextView
+    android:id="@+id/tv_nivel_consciencia"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/tv_urgency"
+    android:textColor="#343434"
+    android:textSize="10dip"
+    android:layout_marginTop="1dip"
+    android:layout_toRightOf="@+id/thumbnail"
+    android:text="Nivel de consciência" />
+
+    <TextView
+        android:id="@+id/tv_nivel_respiracao"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_nivel_consciencia"
+        android:textColor="#343434"
+        android:textSize="10dip"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:text="Nivel de respiração" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_nivel_respiracao"
+        android:textColor="#f11515"
+        android:textSize="10dip"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:text="Pendente" />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/tv_urgency"
+        android:gravity="right"
+        android:text="30/04/2017 - 00:02:00"
+        android:layout_marginRight="5dip"
+        android:textSize="10dip"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

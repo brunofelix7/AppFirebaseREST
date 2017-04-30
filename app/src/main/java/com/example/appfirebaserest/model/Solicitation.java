@@ -10,6 +10,8 @@ public class Solicitation implements Serializable{
     private Double latitude;
     private Double longitude;
     private String urgency;
+    private String nivel_consciencia;
+    private String nivel_respiracao;
     private String status;
     private String date;
 
@@ -17,12 +19,13 @@ public class Solicitation implements Serializable{
 
     }
 
-    public Solicitation(String firebaseId, Double latitude, Double longitude, String urgency, String status, String date) {
+    public Solicitation(Double latitude, Double longitude, String urgency, String nivel_consciencia, String nivel_respiracao, String status, String date) {
         super();
-        this.firebaseId = firebaseId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.urgency = urgency;
+        this.nivel_consciencia = nivel_consciencia;
+        this.nivel_respiracao = nivel_respiracao;
         this.status = status;
         this.date = date;
     }
@@ -34,6 +37,8 @@ public class Solicitation implements Serializable{
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", urgency='" + urgency + '\'' +
+                ", nivel_consciencia='" + nivel_consciencia + '\'' +
+                ", nivel_respiracao='" + nivel_respiracao + '\'' +
                 ", status='" + status + '\'' +
                 ", date='" + date + '\'' +
                 '}';
@@ -69,6 +74,22 @@ public class Solicitation implements Serializable{
 
     public void setUrgency(String urgency) {
         this.urgency = urgency;
+    }
+
+    public String getNivel_consciencia() {
+        return nivel_consciencia;
+    }
+
+    public void setNivel_consciencia(String nivel_consciencia) {
+        this.nivel_consciencia = nivel_consciencia;
+    }
+
+    public String getNivel_respiracao() {
+        return nivel_respiracao;
+    }
+
+    public void setNivel_respiracao(String nivel_respiracao) {
+        this.nivel_respiracao = nivel_respiracao;
     }
 
     public String getStatus() {
