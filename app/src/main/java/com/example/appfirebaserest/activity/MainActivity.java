@@ -5,9 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,10 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
@@ -37,18 +33,10 @@ import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -77,8 +65,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //  Arrays
     private MyAdapter myAdapter;
-    private ArrayList<HashMap<String, String>> mList;
-    private ArrayList<HashMap<String, Solicitation>> mListBody;
     private HashMap<String, Solicitation> map;
 
     //  Get From SQLite
@@ -262,26 +248,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }.start();
 
-        /*//  ListView
-        mList = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            map = new HashMap<>();
-            map.put(KEY_URGENCY, "Urgência");
-            map.put(KEY_CONSCIENCIA, "Nível de Consciência");
-            map.put(KEY_RESPIRACAO, "Nível de Respiração");
-            map.put(KEY_STATUS, "Pendente");
-            map.put(KEY_DATE, "30/04/2017 - 00:30:00");
-            mList.add(map);
-        }
-        myAdapter = new MyAdapter(this, mList);
-        lv_list = (ListView) findViewById(R.id.lv_list);
-        lv_list.setAdapter(myAdapter);
-        lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
-            }
-        });*/
     }
 
     private void listFromSQLite(){

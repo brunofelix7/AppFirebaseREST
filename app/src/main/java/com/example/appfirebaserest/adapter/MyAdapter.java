@@ -2,24 +2,21 @@ package com.example.appfirebaserest.adapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.example.appfirebaserest.R;
-import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.model.Solicitation;
 
 public class MyAdapter extends BaseAdapter {
 
     //  Arrays
-    private Solicitation mViews;
     private HashMap<String, Solicitation> data;
 
     //  Layouts
@@ -51,24 +48,25 @@ public class MyAdapter extends BaseAdapter {
         if(convertView == null) {
             view = inflater.inflate(R.layout.list_item, null);
         }
-
         tv_urgency = (TextView) view.findViewById(R.id.tv_urgency);
         tv_nivel_consciencia = (TextView) view.findViewById(R.id.tv_nivel_consciencia);
         tv_nivel_respiracao = (TextView) view.findViewById(R.id.tv_nivel_respiracao);
         tv_status = (TextView) view.findViewById(R.id.tv_status);
         tv_date = (TextView) view.findViewById(R.id.tv_date);
 
-        mViews = new Solicitation();
-        mViews = data.get(position);
-
+        List<String> p = new ArrayList<>();
+        HashMap<String, Solicitation> s = new HashMap<>();
         for (Map.Entry<String, Solicitation> entry : data.entrySet()) {
-            mViews = entry.getValue();
-            tv_urgency.setText(mViews.getUrgency());
-            tv_nivel_consciencia.setText(mViews.getNivel_consciencia());
-            tv_nivel_respiracao.setText(mViews.getNivel_respiracao());
-            tv_status.setText(mViews.getStatus());
-            tv_date.setText(mViews.getDate());
+            p.add(entry.getKey());
+            s.put(entry.getKey(), entry.getValue());
         }
+
+        Solicitation value = s.get(p.get(position));
+        tv_urgency.setText(value.getUrgency());
+        tv_nivel_consciencia.setText(value.getNivel_consciencia());
+        tv_nivel_respiracao.setText(value.getNivel_respiracao());
+        tv_status.setText(value.getStatus());
+        tv_date.setText(value.getDate());
 
         return view;
     }
