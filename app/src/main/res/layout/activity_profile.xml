@@ -21,6 +21,8 @@
         android:layout_marginTop="-60dp"
         android:background="@drawable/profile_circular_border_imageview"
         android:scaleType="centerCrop"
+        android:clickable="true"
+        android:onClick="teFode"
         android:src="@drawable/profile_image" />
 
     <LinearLayout

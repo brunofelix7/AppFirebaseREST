@@ -11,6 +11,10 @@
     <item android:title="Configuraçoes">
         <menu>
             <item
+                android:id="@+id/nav_info"
+                android:icon="@drawable/ic_menu_info"
+                android:title="Sobre" />
+            <item
                 android:id="@+id/nav_exit"
                 android:icon="@drawable/ic_menu_exit"
                 android:title="Sair" />

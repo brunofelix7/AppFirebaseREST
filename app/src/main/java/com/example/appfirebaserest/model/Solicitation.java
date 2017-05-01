@@ -3,6 +3,9 @@ package com.example.appfirebaserest.model;
 import com.google.firebase.database.IgnoreExtraProperties;
 import java.io.Serializable;
 
+/**
+ * Classe modelo que representa o meu JSON no Firebase
+ */
 @IgnoreExtraProperties
 public class Solicitation implements Serializable{
 

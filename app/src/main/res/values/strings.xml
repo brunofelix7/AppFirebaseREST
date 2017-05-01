@@ -22,10 +22,18 @@
 
     <!-- SolicitationActivity -->
     <string name="text_information">Para atendê-lo da melhor maneira possível, precisamos saber de alguns que são cruciais para exelência do atendimento á vítima.</string>
+    <string name="text_motivo_solicitacao">Motivo da solicitação</string>
     <string name="text_urgency">Qual a sua urgência?</string>
     <string name="text_nivel_consciencia">Nível de consciência da vitima</string>
     <string name="text_nivel_respiracao">Nível de respiração da vítima</string>
     <string name="text_enviar">ENVIAR</string>
+
+    <!-- List Item -->
+    <string name="text_temp_urgencia">Urgência</string>
+    <string name="text_tempo_nivel_consciencia">Nivel de consciência</string>
+    <string name="text_temp_nivel_respiracao">Nivel de respiração</string>
+    <string name="text_temp_pendente">Pendente</string>
+    <string name="text_temp_date">30/04/2017 - 00:02:00</string>
 
     <!-- Spinner Array -->
     <string-array name="niveis_consciencia">
@@ -42,4 +50,5 @@
         <item>Normal</item>
         <item>Não respira</item>
     </string-array>
+
 </resources>

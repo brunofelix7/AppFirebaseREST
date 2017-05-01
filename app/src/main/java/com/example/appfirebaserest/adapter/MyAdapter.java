@@ -14,6 +14,9 @@ import android.widget.TextView;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.model.Solicitation;
 
+/**
+ * Classe do adapter do meu ListView
+ */
 public class MyAdapter extends BaseAdapter {
 
     //  Arrays

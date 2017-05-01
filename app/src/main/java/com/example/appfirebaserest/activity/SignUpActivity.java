@@ -1,41 +1,28 @@
 package com.example.appfirebaserest.activity;
 
-import android.app.ProgressDialog;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
-import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
+import com.example.appfirebaserest.util.UserMessages;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import retrofit2.Retrofit;
-
+/**
+ * Activity realiza o cadastro do usuário no Firebase
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     //  Firebase
-    private FirebaseDatabase database;
     private FirebaseAuth mAuth;
-    private DatabaseReference myRef;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-
-    //  Retrofit
-    private FirebaseAPI firebaseAPI;
-    private Retrofit retrofit;
 
     //  Layouts
     private EditText et_email;
@@ -55,6 +42,9 @@ public class SignUpActivity extends AppCompatActivity {
     //  Check Network Connection
     private CheckNetworkConnection checkNetworkConnection;
 
+    //  UserMessages
+    private UserMessages userMessages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
+    //  REALIZA O CADASTRO DO USUÁRIO
     public void signUp(View view){
         email = et_email.getText().toString();
         password = et_password.getText().toString();
@@ -78,10 +69,15 @@ public class SignUpActivity extends AppCompatActivity {
         til_password.setErrorEnabled(false);
         til_confirm_password.setErrorEnabled(false);
 
+        userMessages = new UserMessages();
         checkNetworkConnection = new CheckNetworkConnection(this);
 
+        //  VALIDAÇÕES
         if(!checkNetworkConnection.isConnected()){
-            Snackbar.make(view, "Sem internet", Snackbar.LENGTH_LONG).show();
+            userMessages.snackbarDefault("Sem internet", this, view);
+            return;
+        }if(!email.isEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            userMessages.snackbarError("Formato de email inválido", this, view);
             return;
         }if(email.isEmpty() || password.isEmpty() || confirm_password.isEmpty()){
             if(email.isEmpty()){
@@ -91,14 +87,14 @@ public class SignUpActivity extends AppCompatActivity {
             }if(confirm_password.isEmpty()){
                 til_confirm_password.setError("Por favor, confirme sua senha");
             }if(email.isEmpty() && password.isEmpty() && confirm_password.isEmpty()){
-                Snackbar.make(view, "Preencha todos os campos", Snackbar.LENGTH_LONG).show();
+                userMessages.snackbarError("Preencha todos os campos", this, view);
             }
             return;
         }if(!password.equals(confirm_password)){
-            Snackbar.make(view, "As senhas não são iguais", Snackbar.LENGTH_LONG).show();
+            userMessages.snackbarError("As senhas sao diferentes", this, view);
             return;
         }if(password.length() < 6){
-            Snackbar.make(view, "A senha deve conter no mínimo 6 caracteres", Snackbar.LENGTH_LONG).show();
+            userMessages.snackbarError("A senha deve conter no mínimo 6 caracteres", this, view);
             return;
         }if(!email.isEmpty() && !password.isEmpty() && !confirm_password.isEmpty()){
             materialDialog = new MaterialDialog.Builder(this)
@@ -106,18 +102,18 @@ public class SignUpActivity extends AppCompatActivity {
                     .cancelable(false)
                     .progress(true, 0)
                     .show();
+
+            //  CRIA UM NOVO USUÁRIO NO FIREBASE
             mAuth = FirebaseAuth.getInstance();
             mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
 
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-                        //  SweepAlert
-                        Toast.makeText(SignUpActivity.this, "Cadastrado com sucesso", Toast.LENGTH_SHORT).show();
+                        userMessages.toastSuccess("Cadastrado com sucesso", SignUpActivity.this);
                         finish();
                     }else{
-                        //  SweepAlert
-                        Toast.makeText(SignUpActivity.this, "Ops, por favor tente novamente", Toast.LENGTH_SHORT).show();
+                        userMessages.toastError("Ops, por favor tente novamente", SignUpActivity.this);
                         finish();
                     }
                 }
@@ -128,6 +124,7 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //  EVITA QUE OS ERROS NOS BOTÕES CONTINUEM CASO O USUÁRIO SAIA E ABRA A APLICAÇÃO NOVAMENTE
         til_email.setErrorEnabled(false);
         til_password.setErrorEnabled(false);
         til_confirm_password.setErrorEnabled(false);
