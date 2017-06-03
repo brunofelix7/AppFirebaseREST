@@ -4,6 +4,10 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_solicitations"
+            android:icon="@drawable/ic_list"
+            android:title="Minhas Ocorrencias" />
+        <item
+            android:id="@+id/nav_account"
             android:icon="@drawable/ic_menu_profile"
             android:title="Minha conta" />
     </group>

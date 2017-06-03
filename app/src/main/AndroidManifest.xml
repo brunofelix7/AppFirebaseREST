@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.appfirebaserest">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.appfirebaserest">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -30,13 +31,29 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".activity.MainActivity"
-            android:label="SamuApp"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activity.ProfileActivity"
             android:label="Profile"
             android:parentActivityName=".activity.MainActivity"
             android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".activity.SolicitationActivity"
+            android:label="Ocorrência"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.MySolicitationsActivity"
+            android:label="Minhas Ocorrências"
+            android:parentActivityName=".activity.MainActivity"/>
 
         <meta-data
             android:name="DATABASE"
@@ -50,21 +67,6 @@
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
             android:value="com.example.appfirebaserest" />
-
-        <activity
-            android:name=".activity.SolicitationActivity"
-            android:label="Ocorrência"
-            android:parentActivityName=".activity.MainActivity" />
-
-        <activity
-            android:name=".activity.MapsActivity"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <!-- Chave da minha API -->
         <meta-data
