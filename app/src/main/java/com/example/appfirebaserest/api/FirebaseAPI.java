@@ -6,8 +6,8 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 
 /**
- * Interface que representa a minha collection "ocorrencias" no Firebase
- * Através da junção da minha URI + o método dessa interface, eu posso fazer uma chamada GET para minha API
+ * Interface que representa minhas URIs e minhas collections no Firebase
+ * Através da junção da minha URL_BASE + o método dessa interface, eu posso fazer uma chamada para minha API
  */
 public interface FirebaseAPI {
 

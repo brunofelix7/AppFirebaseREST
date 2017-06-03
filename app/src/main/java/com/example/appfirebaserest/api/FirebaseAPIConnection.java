@@ -15,10 +15,9 @@ public class FirebaseAPIConnection {
     //  RETORNA MINHA CONEXÃO
     public static Retrofit getConnection(){
         retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.URL)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         return retrofit;
     }
-
 }

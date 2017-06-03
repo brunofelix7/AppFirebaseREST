@@ -50,5 +50,6 @@
         <item>Normal</item>
         <item>Não respira</item>
     </string-array>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

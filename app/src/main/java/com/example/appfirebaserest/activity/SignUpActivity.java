@@ -124,7 +124,7 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //  EVITA QUE OS ERROS NOS BOTÕES CONTINUEM CASO O USUÁRIO SAIA E ABRA A APLICAÇÃO NOVAMENTE
+        //  EVITA QUE OS ERROS NOS EditText CONTINUEM CASO O USUÁRIO SAIA E ABRA A APLICAÇÃO NOVAMENTE
         til_email.setErrorEnabled(false);
         til_password.setErrorEnabled(false);
         til_confirm_password.setErrorEnabled(false);
