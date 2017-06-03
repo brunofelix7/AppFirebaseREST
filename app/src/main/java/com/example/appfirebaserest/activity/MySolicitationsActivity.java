@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.adapter.MyAdapter;
@@ -22,12 +20,11 @@ import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.model.Solicitation;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
+import com.example.appfirebaserest.util.Messages;
 import com.google.firebase.auth.FirebaseAuth;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import retrofit2.Call;
 
 public class MySolicitationsActivity extends AppCompatActivity {
@@ -169,7 +166,7 @@ public class MySolicitationsActivity extends AppCompatActivity {
                         lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Toast.makeText(MySolicitationsActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+                                Messages.toastDefault("Posição: " + position, MySolicitationsActivity.this);
                             }
                         });
 
@@ -235,7 +232,7 @@ public class MySolicitationsActivity extends AppCompatActivity {
         lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MySolicitationsActivity.this, "Posição: " + position, Toast.LENGTH_SHORT).show();
+                Messages.toastDefault("Posição: " + position, MySolicitationsActivity.this);
             }
         });
 
@@ -251,6 +248,7 @@ public class MySolicitationsActivity extends AppCompatActivity {
         //  SE NÃO TEM INTERNET, LISTA DO SQLITE
         if(!checkNetworkConnection.isConnected()){
             listFromSQLite();
+            //  CHAMAR LAYOUT SEM INTERNET AQUI
             Log.d(Constants.TAG, "Sem internet");
         }
         //  SE TEM INTERNET, LISTA DIRETO DA MINHA API DO FIREBASE

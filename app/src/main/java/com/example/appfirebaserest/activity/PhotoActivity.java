@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.core.Constants;
@@ -20,8 +19,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PhotoActivity extends AppCompatActivity {
 
@@ -30,8 +30,14 @@ public class PhotoActivity extends AppCompatActivity {
     private Button b_send_photo;
     private ImageView iv_photo;
     private Bitmap photoCaptured;
-    private StorageReference mStorageRef;
+    private Bitmap bitmap;
+    private StorageReference storageRef;
+    private StorageReference storageRefChild;
     private MaterialDialog materialDialog;
+    private ByteArrayOutputStream byteArray;
+    private UploadTask uploadTask;
+    private String photoName;
+    private byte[] data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +48,7 @@ public class PhotoActivity extends AppCompatActivity {
         b_get_photo.setVisibility(View.VISIBLE);
         b_send_photo.setVisibility(View.GONE);
 
-        mStorageRef = FirebaseStorage.getInstance().getReference();
+        storageRef = FirebaseStorage.getInstance().getReference();
 
     }
 
@@ -68,7 +74,7 @@ public class PhotoActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             photoCaptured = (Bitmap) extras.get("data");
             iv_photo.setImageBitmap(photoCaptured);
-            Messages.toastDefault("Photo take successfully!", this);
+            //  Messages.toastDefault("Photo take successfully!", this);
         }
     }
 
@@ -79,12 +85,28 @@ public class PhotoActivity extends AppCompatActivity {
                 .progress(true, 0)
                 .show();
 
-        StorageReference ref = mStorageRef.child("photos").child(uri.getLastPathSegment());
-        ref.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        photoName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        storageRefChild = storageRef.child("photos/").child(photoName);
+        iv_photo.setDrawingCacheEnabled(true);
+        iv_photo.buildDrawingCache();
+        bitmap = iv_photo.getDrawingCache();
+        byteArray = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArray);
+        data = byteArray.toByteArray();
+
+        uploadTask = storageRefChild.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Messages.toastError("Ops! Algo deu errado :/", PhotoActivity.this);
+                materialDialog.dismiss();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Messages.toastSuccess("Upload successfully", PhotoActivity.this);
+                Messages.toastSuccess("Sucesso.", PhotoActivity.this);
                 materialDialog.dismiss();
+                finish();
             }
         });
     }

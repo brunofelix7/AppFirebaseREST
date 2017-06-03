@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         double lat = -7.1194169;
         double lng = -34.8592634;
         goTolocation(lat, lng, 15f);
-        setMarker("Australia", "Sydney", new LatLng(lat, lng));
+        setMarker("Joao Pessoa", "Estou aqui", new LatLng(lat, lng));
         //  ADICIONA UMA JANELA PERSONALIZADA NO MAPA
         if (this.googleMaps != null) {
             this.googleMaps.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
