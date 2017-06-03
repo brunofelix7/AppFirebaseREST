@@ -5,8 +5,9 @@ package com.example.appfirebaserest.core;
  */
 public class Constants {
 
-    public static final String TAG          = "LogFirebase";
-    public static final String BASE_URL     = "https://appfirebaserest.firebaseio.com/";
-    public static final String PREF_NAME    = "UserAuth";
+    public static final String TAG                      = "LogFirebase";
+    public static final String BASE_URL                 = "https://appfirebaserest.firebaseio.com/";
+    public static final String PREF_NAME                = "UserAuth";
+    public static final int REQUEST_CODE_IMAGE_CAPTURE  = 1;
 
 }

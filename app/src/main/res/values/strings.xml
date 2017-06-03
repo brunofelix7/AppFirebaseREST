@@ -28,6 +28,9 @@
     <string name="text_nivel_respiracao">Nível de respiração da vítima</string>
     <string name="text_enviar">ENVIAR</string>
 
+    <!-- PhotoActivity -->
+    <string name="foto">Foto</string>
+
     <!-- List Item -->
     <string name="text_temp_urgencia">Urgência</string>
     <string name="text_tempo_nivel_consciencia">Nivel de consciência</string>
@@ -50,6 +53,14 @@
         <item>Normal</item>
         <item>Não respira</item>
     </string-array>
-    <string name="title_activity_maps">Map</string>
+
+    <!-- Drawer Menu -->
+    <string name="minhas_ocorrencias">Minhas Ocorrencias</string>
+    <string name="minha_conta">Minha conta</string>
+    <string name="camera">Câmera</string>
+    <string name="configuracoes">Configuraçoes</string>
+    <string name="sobre">Sobre</string>
+    <string name="sair">Sair</string>
+    <string name="send">Enviar</string>
 
 </resources>

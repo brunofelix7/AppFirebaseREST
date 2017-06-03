@@ -10,7 +10,7 @@ import android.widget.EditText;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
-import com.example.appfirebaserest.util.UserMessages;
+import com.example.appfirebaserest.util.Messages;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -42,9 +42,6 @@ public class SignUpActivity extends AppCompatActivity {
     //  Check Network Connection
     private CheckNetworkConnection checkNetworkConnection;
 
-    //  UserMessages
-    private UserMessages userMessages;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,15 +66,14 @@ public class SignUpActivity extends AppCompatActivity {
         til_password.setErrorEnabled(false);
         til_confirm_password.setErrorEnabled(false);
 
-        userMessages = new UserMessages();
         checkNetworkConnection = new CheckNetworkConnection(this);
 
         //  VALIDAÇÕES
         if(!checkNetworkConnection.isConnected()){
-            userMessages.snackbarDefault("Sem internet", this, view);
+            Messages.snackbarDefault("Sem internet", this, view);
             return;
         }if(!email.isEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            userMessages.snackbarError("Formato de email inválido", this, view);
+            Messages.snackbarError("Formato de email inválido", this, view);
             return;
         }if(email.isEmpty() || password.isEmpty() || confirm_password.isEmpty()){
             if(email.isEmpty()){
@@ -87,14 +83,14 @@ public class SignUpActivity extends AppCompatActivity {
             }if(confirm_password.isEmpty()){
                 til_confirm_password.setError("Por favor, confirme sua senha");
             }if(email.isEmpty() && password.isEmpty() && confirm_password.isEmpty()){
-                userMessages.snackbarError("Preencha todos os campos", this, view);
+                Messages.snackbarError("Preencha todos os campos", this, view);
             }
             return;
         }if(!password.equals(confirm_password)){
-            userMessages.snackbarError("As senhas sao diferentes", this, view);
+            Messages.snackbarError("As senhas sao diferentes", this, view);
             return;
         }if(password.length() < 6){
-            userMessages.snackbarError("A senha deve conter no mínimo 6 caracteres", this, view);
+            Messages.snackbarError("A senha deve conter no mínimo 6 caracteres", this, view);
             return;
         }if(!email.isEmpty() && !password.isEmpty() && !confirm_password.isEmpty()){
             materialDialog = new MaterialDialog.Builder(this)
@@ -110,10 +106,10 @@ public class SignUpActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-                        userMessages.toastSuccess("Cadastrado com sucesso", SignUpActivity.this);
+                        Messages.toastSuccess("Cadastrado com sucesso", SignUpActivity.this);
                         finish();
                     }else{
-                        userMessages.toastError("Ops, por favor tente novamente", SignUpActivity.this);
+                        Messages.toastError("Ops, por favor tente novamente", SignUpActivity.this);
                         finish();
                     }
                 }

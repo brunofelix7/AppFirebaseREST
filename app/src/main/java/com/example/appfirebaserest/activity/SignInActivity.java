@@ -16,7 +16,7 @@ import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
-import com.example.appfirebaserest.util.UserMessages;
+import com.example.appfirebaserest.util.Messages;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -57,9 +57,6 @@ public class SignInActivity extends AppCompatActivity {
     //  Check Network Connection
     private CheckNetworkConnection checkNetworkConnection;
 
-    //  UserMessages
-    private UserMessages userMessages;
-
     //  SQLiteFactory
     private SQLiteFactory sqLiteFactory;
 
@@ -87,15 +84,14 @@ public class SignInActivity extends AppCompatActivity {
         til_email.setErrorEnabled(false);
         til_password.setErrorEnabled(false);
 
-        userMessages = new UserMessages();
         checkNetworkConnection = new CheckNetworkConnection(this);
 
         //  VALIDAÇÕES
         if(!checkNetworkConnection.isConnected()){
-            userMessages.snackbarDefault("Sem internet", this, view);
+            Messages.snackbarDefault("Sem internet", this, view);
             return;
         }if(!email.isEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            userMessages.snackbarError("Formato de email inválido", this, view);
+            Messages.snackbarError("Formato de email inválido", this, view);
             return;
         }if(email.isEmpty() || password.isEmpty()){
             if(email.isEmpty()){
@@ -103,7 +99,7 @@ public class SignInActivity extends AppCompatActivity {
             }if(password.isEmpty()){
                 til_password.setError("Por favor, digite sua senha");
             }if(email.isEmpty() && password.isEmpty()){
-                userMessages.snackbarError("Preencha todos os campos", this, view);
+                Messages.snackbarError("Preencha todos os campos", this, view);
             }
             return;
         }if(!email.isEmpty() && !password.isEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
@@ -119,7 +115,7 @@ public class SignInActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(!task.isSuccessful()){
-                        userMessages.snackbarError("Email/Senha inválidos", SignInActivity.this, view);
+                        Messages.snackbarError("Email/Senha inválidos", SignInActivity.this, view);
                         materialDialog.dismiss();
                     }else{
                         materialDialog.dismiss();

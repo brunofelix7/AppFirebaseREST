@@ -10,38 +10,38 @@ import com.example.appfirebaserest.R;
 /**
  * Classe responsável por emitir menssagens ao usuário (Toast e Snackbar)
  */
-public class UserMessages {
+public class Messages {
 
-    public void snackbarDefault(String message, Context context, View view){
+    public static void snackbarDefault(String message, Context context, View view){
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
-    public void snackbarSuccess(String message, Context context, View view){
+    public static void snackbarSuccess(String message, Context context, View view){
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null);
         View snackbarView = snackbar.getView();
         snackbarView.setBackgroundColor(ContextCompat.getColor(context, R.color.green500));
         snackbar.show();
     }
 
-    public void snackbarError(String message, Context context, View view){
+    public static void snackbarError(String message, Context context, View view){
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG).setAction("Action", null);
         View snackbarView = snackbar.getView();
         snackbarView.setBackgroundColor(ContextCompat.getColor(context, R.color.redCustom));
         snackbar.show();
     }
 
-    public void toastDefault(String message, Context context){
+    public static void toastDefault(String message, Context context){
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
-    public void toastSuccess(String message, Context context){
+    public static void toastSuccess(String message, Context context){
         Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
         View toastView = toast.getView();
         toastView.setBackgroundColor(ContextCompat.getColor(context, R.color.green500));
         toast.show();
     }
 
-    public void toastError(String message, Context context){
+    public static void toastError(String message, Context context){
         Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
         View toastView = toast.getView();
         toastView.setBackgroundColor(ContextCompat.getColor(context, R.color.redCustom));

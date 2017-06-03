@@ -1,13 +1,16 @@
 package com.example.appfirebaserest.activity;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,21 +20,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
-import com.example.appfirebaserest.adapter.MyAdapter;
 import com.example.appfirebaserest.api.FirebaseAPI;
-import com.example.appfirebaserest.api.FirebaseAPIConnection;
-import com.example.appfirebaserest.core.Constants;
 import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
-import com.example.appfirebaserest.model.Solicitation;
-import com.example.appfirebaserest.util.CheckNetworkConnection;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,10 +39,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import retrofit2.Call;
 
 /**
  * Activity principal
@@ -58,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MarkerOptions markerOptions;
     private Marker marker;
     private LatLng latLng;
+
+    //  Google API Client
+    private GoogleApiClient googleApiClient;
 
     //  Firebase
     private FirebaseAuth mAuth;
@@ -103,12 +99,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        googleMaps = googleMap;
-        double lat = -34;
-        double lng = 151;
+    public void onMapReady(GoogleMap googleMaps) {
+        this.googleMaps = googleMaps;
+        double lat = -7.1194169;
+        double lng = -34.8592634;
         goTolocation(lat, lng, 15f);
-        setMarker("Australia", "Sydney", new LatLng(-34, 151));
+        setMarker("Australia", "Sydney", new LatLng(lat, lng));
+        //  ADICIONA UMA JANELA PERSONALIZADA NO MAPA
+        if (this.googleMaps != null) {
+            this.googleMaps.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+                @Override
+                public View getInfoWindow(Marker marker) {
+                    return null;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+                    View view = getLayoutInflater().inflate(R.layout.map_info, null);
+
+                    TextView tv_location = (TextView) view.findViewById(R.id.tv_location);
+                    TextView tv_snnipet = (TextView) view.findViewById(R.id.tv_snnipet);
+                    TextView tv_lat_lng = (TextView) view.findViewById(R.id.tv_lat_lng);
+
+                    LatLng latLng = marker.getPosition();
+                    tv_location.setText(marker.getTitle());
+                    tv_snnipet.setText(marker.getSnippet());
+                    tv_lat_lng.setText(latLng.latitude + ", " + latLng.longitude);
+
+                    return view;
+                }
+            });
+            this.googleMaps.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    marker.hideInfoWindow();
+                }
+            });
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        googleMaps.setMyLocationEnabled(true);
+        googleMaps.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 
     /**
@@ -143,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .draggable(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_user));
         marker = this.googleMaps.addMarker(markerOptions);
-        marker.hideInfoWindow();
+        marker.showInfoWindow();
     }
 
     //  MÉTODO PADRÃO DO MENU DRAWER
@@ -171,6 +204,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.action_settings) {
             signOut();
             return true;
+        } else if (id == R.id.action_map){
+            if(googleMaps.getMapType() == GoogleMap.MAP_TYPE_NORMAL){
+                googleMaps.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            }else if(googleMaps.getMapType() == GoogleMap.MAP_TYPE_SATELLITE){
+                googleMaps.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -185,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
         } else if(id == R.id.nav_solicitations){
             Intent intent = new Intent(MainActivity.this, MySolicitationsActivity.class);
+            startActivity(intent);
+        }else if(id == R.id.nav_camera){
+            Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_info) {
             new MaterialDialog.Builder(this)

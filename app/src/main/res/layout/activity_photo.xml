@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.appfirebaserest.activity.PhotoActivity">
+
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scaleType="centerCrop"
+        android:src="@drawable/empty_photo_512"/>
+
+    <Button
+        android:id="@+id/b_get_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/foto"
+        android:textSize="16sp"
+        android:textColor="@color/whiteColor"
+        android:background="@drawable/custom_button_blue"
+        android:onClick="getPhoto"/>
+
+    <Button
+        android:id="@+id/b_send_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send"
+        android:textSize="16sp"
+        android:textColor="@color/whiteColor"
+        android:background="@drawable/custom_button_green"
+        android:onClick="sendPhoto"/>
+
+</LinearLayout>

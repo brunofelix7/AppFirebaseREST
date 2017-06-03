@@ -12,7 +12,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.model.Solicitation;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
-import com.example.appfirebaserest.util.UserMessages;
+import com.example.appfirebaserest.util.Messages;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.text.SimpleDateFormat;
@@ -30,9 +30,6 @@ public class SolicitationActivity extends AppCompatActivity {
     //  Layouts
     private EditText et_urgency;
     private Spinner s_consciencia, s_respiracao;
-
-    //  UserMessages
-    private UserMessages userMessages;
 
     //  Check Network Connection
     private CheckNetworkConnection checkNetworkConnection;
@@ -75,14 +72,13 @@ public class SolicitationActivity extends AppCompatActivity {
 
     //  MÉTODO QUE ENVIA UMA SOLICITAÇÃO PARA O FIREBASE
     public void sendSolicitation(View view){
-        userMessages = new UserMessages();
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
         String dateFormat = simpleDateFormat.format(date);
 
         //  VALIDAÇÕES
         if(et_urgency.getText().toString().isEmpty() || s_consciencia.getSelectedItem().toString().equals("--Selecione--") || s_respiracao.getSelectedItem().toString().equals("--Selecione--")){
-            userMessages.snackbarError("Preencha todos os campos", this, view);
+            Messages.snackbarError("Preencha todos os campos", this, view);
             return;
         }else {
 
