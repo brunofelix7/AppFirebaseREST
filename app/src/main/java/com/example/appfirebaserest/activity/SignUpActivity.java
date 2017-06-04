@@ -1,5 +1,6 @@
 package com.example.appfirebaserest.activity;
 
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -39,9 +40,6 @@ public class SignUpActivity extends AppCompatActivity {
     private String password;
     private String confirm_password;
 
-    //  Check Network Connection
-    private CheckNetworkConnection checkNetworkConnection;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,10 +64,9 @@ public class SignUpActivity extends AppCompatActivity {
         til_password.setErrorEnabled(false);
         til_confirm_password.setErrorEnabled(false);
 
-        checkNetworkConnection = new CheckNetworkConnection(this);
-
         //  VALIDAÇÕES
-        if(!checkNetworkConnection.isConnected()){
+        int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+        if(!CheckNetworkConnection.isNetworkAvailable(this, type)){
             Messages.snackbarDefault("Sem internet", this, view);
             return;
         }if(!email.isEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){

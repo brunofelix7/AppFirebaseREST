@@ -26,10 +26,10 @@
     <string name="text_urgency">Qual a sua urgência?</string>
     <string name="text_nivel_consciencia">Nível de consciência da vitima</string>
     <string name="text_nivel_respiracao">Nível de respiração da vítima</string>
-    <string name="text_enviar">ENVIAR</string>
+    <string name="text_next">PRÓXIMO</string>
 
     <!-- PhotoActivity -->
-    <string name="foto">Foto</string>
+    <string name="foto">Capturar Foto</string>
 
     <!-- List Item -->
     <string name="text_temp_urgencia">Urgência</string>

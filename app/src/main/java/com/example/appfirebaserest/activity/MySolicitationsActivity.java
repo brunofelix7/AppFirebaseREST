@@ -1,6 +1,7 @@
 package com.example.appfirebaserest.activity;
 
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -52,9 +53,6 @@ public class MySolicitationsActivity extends AppCompatActivity {
 
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
-
-    //  Check Network Connection
-    private CheckNetworkConnection checkNetworkConnection;
 
     //  SQLite
     private SQLiteFactory sqLiteFactory;
@@ -243,12 +241,11 @@ public class MySolicitationsActivity extends AppCompatActivity {
 
     //  REALIZA A CHAMADA DE CADA MÉTODO ESPECÍFICO, DEPENDENDO SE O USUÁRIO TEM CONEXÃO COM A INTERNET OU NÃO
     private void getSolicitations(){
-        checkNetworkConnection = new CheckNetworkConnection(this);
 
         //  SE NÃO TEM INTERNET, LISTA DO SQLITE
-        if(!checkNetworkConnection.isConnected()){
+        int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+        if(!CheckNetworkConnection.isNetworkAvailable(this, type)){
             listFromSQLite();
-            //  CHAMAR LAYOUT SEM INTERNET AQUI
             Log.d(Constants.TAG, "Sem internet");
         }
         //  SE TEM INTERNET, LISTA DIRETO DA MINHA API DO FIREBASE

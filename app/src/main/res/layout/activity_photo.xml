@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:id="@+id/ll_photo"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:orientation="vertical"
     tools:context="com.example.appfirebaserest.activity.PhotoActivity">
 
@@ -12,8 +14,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_margin="8dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/empty_photo_512"/>
+        android:src="@drawable/empty_photo_512_blank"/>
 
     <Button
         android:id="@+id/b_get_photo"

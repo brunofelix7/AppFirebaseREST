@@ -1,5 +1,6 @@
 package com.example.appfirebaserest.activity;
 
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,9 +31,6 @@ public class SolicitationActivity extends AppCompatActivity {
     //  Layouts
     private EditText et_urgency;
     private Spinner s_consciencia, s_respiracao;
-
-    //  Check Network Connection
-    private CheckNetworkConnection checkNetworkConnection;
 
     //  Arrays
     private ArrayAdapter<String> arrayAdapterS1;
@@ -90,15 +88,15 @@ public class SolicitationActivity extends AppCompatActivity {
             String id = myRef.push().getKey();
 
             //  CRIA UM OBJETO RECEBENDO OS PARÂMETROS DA SOLICITAÇÃO
-            Solicitation solicitation = new Solicitation(-37.44, -57.11666, et_urgency.getText().toString(), s_consciencia.getSelectedItem().toString(), s_respiracao.getSelectedItem().toString(), "Pendente", dateFormat);
+            Solicitation solicitation = new Solicitation("getLocation", -37.44, -57.11666, et_urgency.getText().toString(), s_consciencia.getSelectedItem().toString(), s_respiracao.getSelectedItem().toString(), "Pendente", dateFormat);
 
             //  CRIA UM NOVO FILHO (ocorrencias), UM OUTRO FILHO COM O HASH E SALVA O OBJETO COM OS DADOS DA SOLICITAÇÃO
             myRef.child("ocorrencias").child(id).setValue(solicitation);
 
             //  CASO O USUÁRIO NÃO POSSUA INTERNET, DE FORMA NATIVA, O FIREBASE GUARDA A REQUISIÇÃO
             //  E FAZ O ENVIO ASSIM QUE O USUÁRIO TIVER UMA CONEXÃO COM A INTERNET NOVAMENTE
-            checkNetworkConnection = new CheckNetworkConnection(this);
-            if (!checkNetworkConnection.isConnected()) {
+            int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+            if(!CheckNetworkConnection.isNetworkAvailable(this, type)){
 
                 //  NOTIFICA AO USUÁRIO
                 new MaterialDialog.Builder(this)

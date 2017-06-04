@@ -91,8 +91,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:background="@color/green500"
-            android:text="@string/text_enviar"
+            android:background="@color/colorPrimary"
+            android:text="@string/text_next"
             android:textColor="@color/whiteColor"
             android:onClick="sendSolicitation"/>
 

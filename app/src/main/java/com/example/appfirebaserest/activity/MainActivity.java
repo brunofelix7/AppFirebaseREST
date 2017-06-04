@@ -1,12 +1,12 @@
 package com.example.appfirebaserest.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -21,13 +21,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
+import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -44,6 +44,10 @@ import com.google.firebase.auth.FirebaseAuth;
  * Activity principal
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+
+    //  Layouts
+    private FloatingActionButton fab;
+    private View network_disconnect;
 
     //  Google Maps API
     private GoogleMap googleMaps;
@@ -68,18 +72,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //  SQLite
     private SQLiteFactory sqLiteFactory;
 
+    //  BroadcastReceiver
+    private IntentFilter intentFilter;
+    private BroadcastReceiver broadcastReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        findViews();
         mapInit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //  VAI PARA TELA DE SOLICITAÇÕES
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,11 +106,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        checkInternet();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
+    }
+
+    private void findViews(){
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        network_disconnect = findViewById(R.id.network_disconnect);
+        network_disconnect.setVisibility(View.GONE);
+        fab.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Verifica em realtime o status da internet
+     */
+    private void checkInternet(){
+        intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+                if(CheckNetworkConnection.isNetworkAvailable(context, type)){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            network_disconnect.setVisibility(View.GONE);
+                            fab.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    //  Messages.toastSuccess("Conectado", MainActivity.this);
+                }else{
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            network_disconnect.setVisibility(View.VISIBLE);
+                            fab.setVisibility(View.GONE);
+                        }
+                    });
+                    //  Messages.toastError("Sem internet", MainActivity.this);
+                }
+            }
+        };
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMaps) {
         this.googleMaps = googleMaps;
         double lat = -7.1194169;
         double lng = -34.8592634;
-        goTolocation(lat, lng, 15f);
+        goTolocation(lat, lng, 16f);
         setMarker("Joao Pessoa", "Estou aqui", new LatLng(lat, lng));
         //  ADICIONA UMA JANELA PERSONALIZADA NO MAPA
         if (this.googleMaps != null) {

@@ -1,6 +1,7 @@
 package com.example.appfirebaserest.activity;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -54,9 +55,6 @@ public class SignInActivity extends AppCompatActivity {
     //  SharedPreferences
     private SharedPreferencesFactory preferencesFactory;
 
-    //  Check Network Connection
-    private CheckNetworkConnection checkNetworkConnection;
-
     //  SQLiteFactory
     private SQLiteFactory sqLiteFactory;
 
@@ -84,10 +82,9 @@ public class SignInActivity extends AppCompatActivity {
         til_email.setErrorEnabled(false);
         til_password.setErrorEnabled(false);
 
-        checkNetworkConnection = new CheckNetworkConnection(this);
-
         //  VALIDAÇÕES
-        if(!checkNetworkConnection.isConnected()){
+        int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+        if(!CheckNetworkConnection.isNetworkAvailable(this, type)){
             Messages.snackbarDefault("Sem internet", this, view);
             return;
         }if(!email.isEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
