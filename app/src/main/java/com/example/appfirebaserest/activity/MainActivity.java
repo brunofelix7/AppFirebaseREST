@@ -6,9 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
@@ -21,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
@@ -28,6 +33,8 @@ import com.example.appfirebaserest.api.FirebaseAPI;
 import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
+import com.example.appfirebaserest.util.MyListener;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,7 +50,7 @@ import com.google.firebase.auth.FirebaseAuth;
 /**
  * Activity principal
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     //  Layouts
     private FloatingActionButton fab;
@@ -55,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MarkerOptions markerOptions;
     private Marker marker;
     private LatLng latLng;
+    private double latitude;
+    private double longitude;
 
     //  Google API Client
     private GoogleApiClient googleApiClient;
@@ -75,6 +84,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //  BroadcastReceiver
     private IntentFilter intentFilter;
     private BroadcastReceiver broadcastReceiver;
+
+    //  GPS
+    private LocationManager locationManager;
+    private MyListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,11 +130,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         unregisterReceiver(broadcastReceiver);
     }
 
-    private void findViews(){
+    private void findViews() {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         network_disconnect = findViewById(R.id.network_disconnect);
         network_disconnect.setVisibility(View.GONE);
         fab.setVisibility(View.VISIBLE);
+    }
+
+    private void getLocation() {
+        listener = new MyListener();
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
     }
 
     /**
@@ -332,4 +354,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }
