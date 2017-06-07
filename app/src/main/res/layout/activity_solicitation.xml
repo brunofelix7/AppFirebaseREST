@@ -94,6 +94,6 @@
             android:background="@color/colorPrimary"
             android:text="@string/text_next"
             android:textColor="@color/whiteColor"
-            android:onClick="sendSolicitation"/>
+            android:onClick="nextPage"/>
 
 </LinearLayout>

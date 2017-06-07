@@ -10,18 +10,16 @@ public class GeocodingConvert {
 
     private static Geocoder geocoder;
     private static List<Address> listAddress;
-    private static Address address;
-    private static String location;
+    private static String address;
 
-    public static String getAddress(double lat, double lng, Context context) {
+    public static String getAddress(Double lat, Double lng, Context context) {
         try {
             geocoder    = new Geocoder(context, Locale.getDefault());
             listAddress = geocoder.getFromLocation(lat, lng, 1);
-            address     = listAddress.get(0);
-            location    = address.getAddressLine(0);
+            address     = listAddress.get(0).getAddressLine(0);
         } catch (Exception e) {
             return null;
         }
-        return location;
+        return address;
     }
 }

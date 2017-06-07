@@ -6,15 +6,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -30,9 +34,12 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.api.FirebaseAPI;
+import com.example.appfirebaserest.core.Constants;
+import com.example.appfirebaserest.core.MainController;
 import com.example.appfirebaserest.database.SQLiteFactory;
 import com.example.appfirebaserest.database.SharedPreferencesFactory;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
+import com.example.appfirebaserest.util.GeocodingConvert;
 import com.example.appfirebaserest.util.MyListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -47,10 +54,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.List;
+
 /**
  * Activity principal
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     //  Layouts
     private FloatingActionButton fab;
@@ -62,8 +71,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MarkerOptions markerOptions;
     private Marker marker;
     private LatLng latLng;
-    private double latitude;
-    private double longitude;
 
     //  Google API Client
     private GoogleApiClient googleApiClient;
@@ -85,9 +92,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private IntentFilter intentFilter;
     private BroadcastReceiver broadcastReceiver;
 
+    //  Geocoder
+    private static Geocoder geocoder;
+    private static List<Address> listAddress;
+    private static String loc;
+
     //  GPS
+    private Double lat;
+    private Double lng;
+    private String address;
     private LocationManager locationManager;
-    private MyListener listener;
+    private LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +131,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //  GPS
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if (location != null) {
+                    lat = location.getLatitude();
+                    lng = location.getLongitude();
+                    MainController.getInstance().setLat(lat);
+                    MainController.getInstance().setLng(lng);
+                    goTolocation(lat, lng, 16f);
+                    address = GeocodingConvert.getAddress(lat, lng, MainActivity.this);
+                    setMarker(address, "Estou aqui", new LatLng(lat, lng));
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 8000, 0, locationListener);
     }
 
     @Override
@@ -135,15 +187,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         network_disconnect = findViewById(R.id.network_disconnect);
         network_disconnect.setVisibility(View.GONE);
         fab.setVisibility(View.VISIBLE);
-    }
-
-    private void getLocation() {
-        listener = new MyListener();
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
     }
 
     /**
@@ -182,10 +225,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onMapReady(GoogleMap googleMaps) {
         this.googleMaps = googleMaps;
-        double lat = -7.1194169;
-        double lng = -34.8592634;
-        goTolocation(lat, lng, 16f);
-        setMarker("Joao Pessoa", "Estou aqui", new LatLng(lat, lng));
         //  ADICIONA UMA JANELA PERSONALIZADA NO MAPA
         if (this.googleMaps != null) {
             this.googleMaps.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -201,12 +240,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     TextView tv_location = (TextView) view.findViewById(R.id.tv_location);
                     TextView tv_snnipet = (TextView) view.findViewById(R.id.tv_snnipet);
-                    TextView tv_lat_lng = (TextView) view.findViewById(R.id.tv_lat_lng);
 
-                    LatLng latLng = marker.getPosition();
                     tv_location.setText(marker.getTitle());
                     tv_snnipet.setText(marker.getSnippet());
-                    tv_lat_lng.setText(latLng.latitude + ", " + latLng.longitude);
 
                     return view;
                 }
@@ -354,18 +390,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 }

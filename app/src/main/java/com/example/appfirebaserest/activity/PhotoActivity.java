@@ -13,13 +13,19 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.appfirebaserest.R;
 import com.example.appfirebaserest.core.Constants;
+import com.example.appfirebaserest.core.MainController;
+import com.example.appfirebaserest.core.SolicitationController;
+import com.example.appfirebaserest.model.Solicitation;
 import com.example.appfirebaserest.util.CheckNetworkConnection;
 import com.example.appfirebaserest.util.Messages;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -28,6 +34,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PhotoActivity extends AppCompatActivity {
+
+    //  Firebase
+    private String id;
+    private FirebaseDatabase mDatabase;
+    private DatabaseReference myRef;
 
     //  Firebase Storage
     private Uri uri;
@@ -49,6 +60,13 @@ public class PhotoActivity extends AppCompatActivity {
     //  Intent Camera
     private Bitmap photoCaptured;
 
+    //  Get Extras
+    private Double lat;
+    private Double lng;
+    private String urgencia;
+    private String consciencia;
+    private String respiracao;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +86,7 @@ public class PhotoActivity extends AppCompatActivity {
         b_get_photo = (Button) findViewById(R.id.b_get_photo);
         b_send_photo = (Button) findViewById(R.id.b_send_photo);
     }
+
 
     /**
      * Abre a câmera do smartphone
@@ -110,13 +129,37 @@ public class PhotoActivity extends AppCompatActivity {
                     .progress(true, 0)
                     .show();
 
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
+            String dateFormat = simpleDateFormat.format(date);
+
+            //  GERA UM HASH ÚNICO
+            id = myRef.push().getKey();
+
+            //  RECUPERA A INSTÂNCIA DA MINHA BASE DO FIREBASE
+            mDatabase = FirebaseDatabase.getInstance();
+            myRef = mDatabase.getReference();
+
+            //  RECUPERA OS PARÂMETROS
+            lat = MainController.getInstance().getLat();
+            lng = MainController.getInstance().getLng();
+            urgencia = SolicitationController.getInstance().getUrgencia();
+            consciencia = SolicitationController.getInstance().getConsciencia();
+            respiracao = SolicitationController.getInstance().getRespiracao();
+
+            //  CRIA UM OBJETO RECEBENDO OS PARÂMETROS DA SOLICITAÇÃO
+            Solicitation solicitation = new Solicitation("getLocation", lat, lng, urgencia, consciencia, respiracao, "Pendente", dateFormat);
+
+            //  CRIA UM NOVO FILHO (ocorrencias), UM OUTRO FILHO COM O HASH E SALVA O OBJETO COM OS DADOS DA SOLICITAÇÃO
+            myRef.child("ocorrencias").child(id).setValue(solicitation);
+
             photoName = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            storageRefChild = storageRef.child("photos/").child(photoName);
+            storageRefChild = storageRef.child("photos/").child(id + "_" + photoName);
             iv_photo.setDrawingCacheEnabled(true);
             iv_photo.buildDrawingCache();
             bitmap = iv_photo.getDrawingCache();
             byteArray = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArray);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 500, byteArray);
             data = byteArray.toByteArray();
 
             uploadTask = storageRefChild.putBytes(data);
@@ -131,7 +174,17 @@ public class PhotoActivity extends AppCompatActivity {
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Messages.toastSuccess("Sucesso.", PhotoActivity.this);
                     materialDialog.dismiss();
-                    finish();
+                    new MaterialDialog.Builder(PhotoActivity.this)
+                            .title("Enviado!")
+                            .content("Solicitação encaminhada com sucesso.")
+                            .positiveText("OK")
+                            .cancelable(false)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    finish();
+                                }
+                            }).show();
                 }
             });
         }
