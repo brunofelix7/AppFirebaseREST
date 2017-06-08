@@ -6,6 +6,9 @@ import android.location.Geocoder;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Classe que realiza a conversão das cordenadas em endereço físico
+ */
 public class GeocodingConvert {
 
     private static Geocoder geocoder;

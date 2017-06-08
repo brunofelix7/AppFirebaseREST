@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Verifica em realtime o status da internet
+     * Verifica em tempo real o status da internet
      */
     private void checkInternet(){
         intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
@@ -406,6 +407,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     preferencesFactory.deletePreferences(MainActivity.this);
 
                     //  CHAMA O MÉTODO signOut() NATIVO DO FIREBASE
+                    mAuth = FirebaseAuth.getInstance();
                     mAuth.signOut();
 
                     //  E VOLTA PARA TELA DE LOGIN
