@@ -18,7 +18,7 @@ public class SQLiteFactory extends SQLiteOpenHelper {
     //  PARÂMETROS DO BANCO DE DADOS
     private static final String DATABASE = "firebaseapp.db";
     private static final String TABLE_SOLICITATION = "solicitation";
-    private static final String TABLE_USER = "user";
+    private static final String TABLE_USER = "userauth";
 
     //  PARÂMETROS DA TABELA SOLICITATION
     private static final String ID = "id";
@@ -30,6 +30,7 @@ public class SQLiteFactory extends SQLiteOpenHelper {
     private static final String DATE = "date";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
+    private static final String ADDRESS = "address";
 
     //  PARâMETROS DA TABELA USER
     private static final String USER_ID = "id";
@@ -56,6 +57,7 @@ public class SQLiteFactory extends SQLiteOpenHelper {
             NIVEL_RESPIRACAO + " TEXT, " +
             LATITUDE + " REAL, " +
             LONGITUDE + " REAL, " +
+            ADDRESS + " TEXT, " +
             DATE + " TEXT" +
             ")";
 
@@ -103,7 +105,7 @@ public class SQLiteFactory extends SQLiteOpenHelper {
     }
 
     //  SAVA OS DADOS DA SOLICITAÇÃO NA TABELA solicitation
-    public boolean save(String firebaseId, String status, String urgency, String nivel_consciencia, String nivel_respiracao, Double latitude, Double longitude, String date){
+    public boolean save(String firebaseId, String status, String urgency, String nivel_consciencia, String nivel_respiracao, Double latitude, Double longitude, String address, String date){
         SQLiteDatabase db = this.getWritableDatabase();
         contentValues = new ContentValues();
         contentValues.put(FIREBASE_ID, firebaseId);

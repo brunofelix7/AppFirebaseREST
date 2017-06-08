@@ -10,10 +10,6 @@
             android:id="@+id/nav_account"
             android:icon="@drawable/ic_menu_profile"
             android:title="@string/minha_conta" />
-        <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_photo"
-            android:title="@string/camera" />
     </group>
 
     <item android:title="@string/configuracoes">

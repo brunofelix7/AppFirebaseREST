@@ -3,6 +3,7 @@ package com.example.appfirebaserest.activity;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -14,10 +15,12 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -143,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     MainController.getInstance().setLng(lng);
                     goTolocation(lat, lng, 16f);
                     address = GeocodingConvert.getAddress(lat, lng, MainActivity.this);
+                    MainController.getInstance().setAddress(address);
                     setMarker(address, "Estou aqui", new LatLng(lat, lng));
                 }
             }
@@ -159,7 +163,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             @Override
             public void onProviderDisabled(String provider) {
-
+                //  HABILITAR O GPS
+                displayGPS(MainActivity.this);
             }
         };
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -343,10 +348,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if(id == R.id.nav_solicitations){
             Intent intent = new Intent(MainActivity.this, MySolicitationsActivity.class);
             startActivity(intent);
-        }else if(id == R.id.nav_camera){
-            Intent intent = new Intent(MainActivity.this, PhotoActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_info) {
+        }else if (id == R.id.nav_info) {
             new MaterialDialog.Builder(this)
                     .title("Equipe")
                     .content("Bruno Felix\nEmerson Lemos\nJoão Marcus")
@@ -358,6 +360,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * Solicita ao usuário que habilite seu GPS caso esteja desligado
+     */
+    public static void displayGPS(final MainActivity activity){
+        final AlertDialog.Builder builder =  new AlertDialog.Builder(activity);
+        final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+        final String message = "Para utilizar o serviço de maneira eficiente, habilite seu GPS.";
+        builder.setTitle("Deseja habilitar seu GPS?")
+                .setMessage(message)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int id) {
+                                activity.startActivity(new Intent(action));
+                                d.dismiss();
+                            }
+                        })
+                .setNegativeButton("Cancelar",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int id) {
+                                d.cancel();
+                            }
+                        });
+        builder.create().show();
     }
 
     //  REALIZA O LOGOUT DA APLICAÇÃO

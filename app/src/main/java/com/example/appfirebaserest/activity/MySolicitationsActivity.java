@@ -138,7 +138,7 @@ public class MySolicitationsActivity extends AppCompatActivity {
                                 Solicitation solicitation = entry.getValue();
 
                                 //  SALVA NO SQLITE
-                                sqLiteFactory.save(key, solicitation.getStatus(), solicitation.getUrgency(), solicitation.getNivel_consciencia(), solicitation.getNivel_respiracao(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getDate());
+                                sqLiteFactory.save(key, solicitation.getStatus(), solicitation.getUrgency(), solicitation.getNivel_consciencia(), solicitation.getNivel_respiracao(), solicitation.getLatitude(), solicitation.getLongitude(), solicitation.getAddress(), solicitation.getDate());
                                 Log.d(Constants.TAG, "Keys: " + key + "\n");
                                 Log.d(Constants.TAG, "Values: " + solicitation + "\n");
                             }

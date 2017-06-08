@@ -83,9 +83,16 @@ public class SolicitationActivity extends AppCompatActivity {
     }
 
 
-    //  Pegar parâmetros
+    /**
+     * Direciona para a próxima página
+     * @param view
+     */
     public void nextPage(View view){
-        if(et_urgency.getText().toString().isEmpty() || s_consciencia.getSelectedItem().toString().equals("--Selecione--") || s_respiracao.getSelectedItem().toString().equals("--Selecione--")){
+        int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+        if(!CheckNetworkConnection.isNetworkAvailable(this, type)){
+            Messages.snackbarError("Ops! Você está sem internet", this, view);
+            return;
+        }if(et_urgency.getText().toString().isEmpty() || s_consciencia.getSelectedItem().toString().equals("--Selecione--") || s_respiracao.getSelectedItem().toString().equals("--Selecione--")){
             Messages.snackbarError("Preencha todos os campos", this, view);
             return;
         }else {

@@ -17,15 +17,15 @@ public class Solicitation implements Serializable{
     private String nivel_respiracao;
     private String status;
     private String date;
-    private String location;
+    private String address;
 
     public Solicitation(){
 
     }
 
-    public Solicitation(String location, Double latitude, Double longitude, String urgency, String nivel_consciencia, String nivel_respiracao, String status, String date) {
+    public Solicitation(String address, Double latitude, Double longitude, String urgency, String nivel_consciencia, String nivel_respiracao, String status, String date) {
         super();
-        this.location = location;
+        this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.urgency = urgency;
@@ -113,5 +113,11 @@ public class Solicitation implements Serializable{
         this.date = date;
     }
 
+    public String getAddress() {
+        return address;
+    }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

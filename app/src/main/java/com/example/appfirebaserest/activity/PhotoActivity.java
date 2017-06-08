@@ -1,7 +1,9 @@
 package com.example.appfirebaserest.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -61,11 +63,12 @@ public class PhotoActivity extends AppCompatActivity {
     private Bitmap photoCaptured;
 
     //  Get Extras
-    private Double lat;
-    private Double lng;
-    private String urgencia;
-    private String consciencia;
-    private String respiracao;
+    private Double lat = 0.0;
+    private Double lng = 0.0;
+    private String address = "null";
+    private String urgencia = "null";
+    private String consciencia = "null";
+    private String respiracao = "null";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +89,6 @@ public class PhotoActivity extends AppCompatActivity {
         b_get_photo = (Button) findViewById(R.id.b_get_photo);
         b_send_photo = (Button) findViewById(R.id.b_send_photo);
     }
-
 
     /**
      * Abre a câmera do smartphone
@@ -133,22 +135,23 @@ public class PhotoActivity extends AppCompatActivity {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm");
             String dateFormat = simpleDateFormat.format(date);
 
-            //  GERA UM HASH ÚNICO
-            id = myRef.push().getKey();
-
             //  RECUPERA A INSTÂNCIA DA MINHA BASE DO FIREBASE
             mDatabase = FirebaseDatabase.getInstance();
             myRef = mDatabase.getReference();
 
+            //  GERA UM HASH ÚNICO
+            id = myRef.push().getKey();
+
             //  RECUPERA OS PARÂMETROS
             lat = MainController.getInstance().getLat();
             lng = MainController.getInstance().getLng();
+            address = MainController.getInstance().getAddress();
             urgencia = SolicitationController.getInstance().getUrgencia();
             consciencia = SolicitationController.getInstance().getConsciencia();
             respiracao = SolicitationController.getInstance().getRespiracao();
 
             //  CRIA UM OBJETO RECEBENDO OS PARÂMETROS DA SOLICITAÇÃO
-            Solicitation solicitation = new Solicitation("getLocation", lat, lng, urgencia, consciencia, respiracao, "Pendente", dateFormat);
+            Solicitation solicitation = new Solicitation(address, lat, lng, urgencia, consciencia, respiracao, "Pendente", dateFormat);
 
             //  CRIA UM NOVO FILHO (ocorrencias), UM OUTRO FILHO COM O HASH E SALVA O OBJETO COM OS DADOS DA SOLICITAÇÃO
             myRef.child("ocorrencias").child(id).setValue(solicitation);
@@ -159,7 +162,7 @@ public class PhotoActivity extends AppCompatActivity {
             iv_photo.buildDrawingCache();
             bitmap = iv_photo.getDrawingCache();
             byteArray = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 500, byteArray);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArray);
             data = byteArray.toByteArray();
 
             uploadTask = storageRefChild.putBytes(data);

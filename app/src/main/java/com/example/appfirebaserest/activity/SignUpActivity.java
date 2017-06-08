@@ -69,6 +69,9 @@ public class SignUpActivity extends AppCompatActivity {
         if(!CheckNetworkConnection.isNetworkAvailable(this, type)){
             Messages.snackbarDefault("Sem internet", this, view);
             return;
+        }if(password.length() < 6){
+            Messages.snackbarError("A senha deve conter no mínimo 6 caracteres!", this, view);
+            return;
         }if(!email.isEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             Messages.snackbarError("Formato de email inválido", this, view);
             return;

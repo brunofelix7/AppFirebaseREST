@@ -1,5 +1,8 @@
 package com.example.appfirebaserest.core;
 
+/**
+ * Classe usada para passar e pegar parêmetros de uma activity para a outra
+ */
 public class MainController {
 
     private static MainController instance = null;
