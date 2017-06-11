@@ -1,4 +1,4 @@
-# Projeto 2º Estágio - FirebaseApp
+# Projeto 3º Estágio - FirebaseApp
 
 # Equipe:
 ### Bruno Felix
